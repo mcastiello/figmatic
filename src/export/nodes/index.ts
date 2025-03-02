@@ -1,0 +1,21 @@
+import type { FigmaNode } from "./node";
+export * from "./boolean-operation";
+export * from "./canvas";
+export * from "./canvas";
+export * from "./component";
+export * from "./component-set";
+export * from "./document";
+export * from "./ellipse";
+export * from "./frame";
+export * from "./group";
+export * from "./instance";
+export * from "./line";
+export * from "./rectangle";
+export * from "./regular-polygon";
+export * from "./section";
+export * from "./star";
+export * from "./text";
+export * from "./vector";
+export * from "./washi-tape";
+
+export { FigmaNode };
