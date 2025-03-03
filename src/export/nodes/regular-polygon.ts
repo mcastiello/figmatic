@@ -14,7 +14,6 @@ export class RegularPolygonNode extends FigmaNode<RegularPolygonNodeData> {
       opacity: 1,
       preserveRatio: false,
       strokeCap: StrokeCap.None,
-      strokeDashes: [],
       strokeJoin: StrokeJoin.Miter,
       strokeMiterAngle: 28.96,
       strokes: [],

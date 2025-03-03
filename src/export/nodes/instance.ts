@@ -42,7 +42,6 @@ export class InstanceNode extends FigmaNode<InstanceNodeData> {
       preserveRatio: false,
       primaryAxisAlignItems: AxisAlign.Min,
       primaryAxisSizingMode: AxisSizing.Auto,
-      strokeDashes: [],
       strokes: [],
       strokesIncludedInLayout: false,
       styles: {},

@@ -16,7 +16,6 @@ export class TextNode extends FigmaNode<TextNodeData> {
       isMask: false,
       strokeCap: StrokeCap.None,
       strokeJoin: StrokeJoin.Miter,
-      strokeDashes: [],
       strokeMiterAngle: 28.96,
     };
   }

@@ -14,7 +14,6 @@ export class BooleanOperationNode extends FigmaNode<BooleanOperationNodeData> {
       opacity: 1,
       preserveRatio: false,
       strokeCap: StrokeCap.None,
-      strokeDashes: [],
       strokeJoin: StrokeJoin.Miter,
       strokeMiterAngle: 28.96,
       strokes: [],

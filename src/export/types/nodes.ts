@@ -60,9 +60,8 @@ export type GenericNodeData<Type extends NodeType = NodeType> = {
 
 export type GenericNode<Type extends NodeType = NodeType> = Omit<NodeData, "type"> & GenericNodeData<Type>;
 
-export type NodeDefinitionData<DataType extends GenericNodeData = GenericNodeData> = Partial<
-  Omit<GenericNode<DataType["type"]>, "children" | "type" | "id">
-> &
+export type BaseNodeDefinitionData = Partial<Omit<NodeData, "children" | "type" | "id">>;
+export type NodeDefinitionData<DataType extends GenericNodeData = GenericNodeData> = BaseNodeDefinitionData &
   Partial<Omit<DataType, "type">>;
 
 export type DocumentNodeData = GenericNodeData<NodeType.Document>;

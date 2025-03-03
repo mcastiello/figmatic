@@ -39,7 +39,6 @@ export class ComponentSetNode extends FigmaNode<ComponentSetNodeData> {
       preserveRatio: false,
       primaryAxisAlignItems: AxisAlign.Min,
       primaryAxisSizingMode: AxisSizing.Auto,
-      strokeDashes: [],
       strokes: [],
       strokesIncludedInLayout: false,
       styles: {},

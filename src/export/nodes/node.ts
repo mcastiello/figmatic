@@ -1,10 +1,10 @@
-import { GenericNodeData, GRAPHIC_NODES, isNodeData, NodeDefinitionData } from "../types";
+import { GenericNode, GenericNodeData, GRAPHIC_NODES, isNodeData, NodeDefinitionData } from "../types";
 import { NodesCollection } from "../resources";
 
 export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
-  protected readonly nodeId: string;
-  protected readonly nodeType: DataType["type"];
-  protected readonly data: NodeDefinitionData<DataType>;
+  protected readonly nodeId: string | undefined;
+  protected readonly nodeType: DataType["type"] | undefined;
+  protected readonly data: NodeDefinitionData<DataType> | undefined;
   protected readonly childrenIds: string[] | undefined;
 
   get DefaultValues(): NodeDefinitionData<DataType> {
@@ -14,19 +14,17 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
       explicitVariableModes: {},
       rotation: 0,
       visible: true,
-    };
+    } as NodeDefinitionData<DataType>;
   }
 
   constructor(data: Record<string, unknown>) {
-    if (isNodeData<DataType>(data)) {
+    if (isNodeData<GenericNode<DataType["type"]>>(data)) {
       const { id, type, children, ...definition } = data;
       this.nodeId = id;
       this.nodeType = type;
       this.data = { ...this.DefaultValues, ...definition };
 
       this.childrenIds = children?.map(({ id }) => id);
-
-      NodesCollection.set(id, this);
     }
   }
 
@@ -43,10 +41,10 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get children() {
-    return this.children?.map((id) => NodesCollection.get(id)).filter((node) => !!node && node.valid);
+    return this.childrenIds?.map((id) => NodesCollection.get(id)).filter((node) => !!node && node.valid);
   }
 
   get isGraphicNode() {
-    return GRAPHIC_NODES.includes(this.nodeType);
+    return this.nodeType ? GRAPHIC_NODES.includes(this.nodeType) : false;
   }
 }

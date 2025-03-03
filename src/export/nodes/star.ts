@@ -14,7 +14,6 @@ export class StarNode extends FigmaNode<StarNodeData> {
       opacity: 1,
       preserveRatio: false,
       strokeCap: StrokeCap.None,
-      strokeDashes: [],
       strokeJoin: StrokeJoin.Miter,
       strokeMiterAngle: 28.96,
       strokes: [],

@@ -15,7 +15,26 @@ import type { StarNode } from "../nodes/star";
 import type { TextNode } from "../nodes/text";
 import type { VectorNode } from "../nodes/vector";
 import type { WashiTapeNode } from "../nodes/washi-tape";
-import type { NodeType } from "./index";
+import type { NodeType } from "./enumerators";
+import type {
+  BooleanOperationNodeData,
+  CanvasNodeData,
+  ComponentNodeData,
+  ComponentSetNodeData,
+  DocumentNodeData,
+  EllipseNodeData,
+  FrameNodeData,
+  GroupNodeData,
+  InstanceNodeData,
+  LineNodeData,
+  RectangleNodeData,
+  RegularPolygonNodeData,
+  SectionNodeData,
+  StarNodeData,
+  TextNodeData,
+  VectorNodeData,
+  WashiTapeNodeData,
+} from "./nodes";
 
 export type NodesMap = {
   [NodeType.BooleanOperation]: BooleanOperationNode;
@@ -35,4 +54,24 @@ export type NodesMap = {
   [NodeType.Text]: TextNode;
   [NodeType.Vector]: VectorNode;
   [NodeType.WashiTape]: WashiTapeNode;
+};
+
+export type NodesDataMap = {
+  [NodeType.BooleanOperation]: BooleanOperationNodeData;
+  [NodeType.Canvas]: CanvasNodeData;
+  [NodeType.ComponentSet]: ComponentSetNodeData;
+  [NodeType.Component]: ComponentNodeData;
+  [NodeType.Document]: DocumentNodeData;
+  [NodeType.Ellipse]: EllipseNodeData;
+  [NodeType.Frame]: FrameNodeData;
+  [NodeType.Group]: GroupNodeData;
+  [NodeType.Instance]: InstanceNodeData;
+  [NodeType.Line]: LineNodeData;
+  [NodeType.Rectangle]: RectangleNodeData;
+  [NodeType.RegularPolygon]: RegularPolygonNodeData;
+  [NodeType.Section]: SectionNodeData;
+  [NodeType.Star]: StarNodeData;
+  [NodeType.Text]: TextNodeData;
+  [NodeType.Vector]: VectorNodeData;
+  [NodeType.WashiTape]: WashiTapeNodeData;
 };

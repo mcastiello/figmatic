@@ -16,7 +16,6 @@ export class VectorNode extends FigmaNode<VectorNodeData> {
       isMask: false,
       strokeCap: StrokeCap.None,
       strokeJoin: StrokeJoin.Miter,
-      strokeDashes: [],
       strokeMiterAngle: 28.96,
     };
   }

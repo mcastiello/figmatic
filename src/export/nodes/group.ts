@@ -38,7 +38,6 @@ export class GroupNode extends FigmaNode<GroupNodeData> {
       preserveRatio: false,
       primaryAxisAlignItems: AxisAlign.Min,
       primaryAxisSizingMode: AxisSizing.Auto,
-      strokeDashes: [],
       strokes: [],
       strokesIncludedInLayout: false,
       styles: {},
