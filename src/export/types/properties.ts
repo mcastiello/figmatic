@@ -238,3 +238,16 @@ export type Overrides = {
   id: string;
   overriddenFields: string[];
 };
+
+export type FigmaComponentVariant = {
+  name: string;
+  description: string;
+  nodeId: string;
+};
+
+export type FigmaComponentData = {
+  name: string;
+  nodeId: string;
+  description: string;
+  variants: FigmaComponentVariant[];
+};
