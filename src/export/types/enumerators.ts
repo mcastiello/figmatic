@@ -304,3 +304,35 @@ export enum ComponentPropertyType {
   Text = "TEXT",
   Variant = "VARIANT",
 }
+
+export enum VariableType {
+  Boolean = "BOOLEAN",
+  Float = "FLOAT",
+  String = "STRING",
+  Color = "COLOR",
+}
+
+export enum VariableScope {
+  AllFills = "ALL_FILLS",
+  AllScopes = "ALL_SCOPES",
+  CornerRadius = "CORNER_RADIUS",
+  EffectColor = "EFFECT_COLOR",
+  EffectFloat = "EFFECT_FLOAT",
+  FontFamily = "FONT_FAMILY",
+  FontSize = "FONT_SIZE",
+  FontStyle = "FONT_STYLE",
+  FontWeight = "FONT_WEIGHT",
+  FrameFill = "FRAME_FILL",
+  Gap = "GAP",
+  LetterSpacing = "LETTER_SPACING",
+  LineHeight = "LINE_HEIGHT",
+  Opacity = "OPACITY",
+  ParagraphIndent = "PARAGRAPH_INDENT",
+  ParagraphSpacing = "PARAGRAPH_SPACING",
+  ShapeFill = "SHAPE_FILL",
+  StrokeColor = "STROKE_COLOR",
+  StrokeFloat = "STROKE_FLOAT",
+  TextContent = "TEXT_CONTENT",
+  TextFill = "TEXT_FILL",
+  WidthHeight = "WIDTH_HEIGHT",
+}

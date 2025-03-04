@@ -22,6 +22,8 @@ import {
   TextCase,
   TextDecoration,
   TextTruncation,
+  VariableScope,
+  VariableType,
   VerticalLayoutConstraint,
 } from "./enumerators";
 
@@ -250,4 +252,29 @@ export type FigmaComponentData = {
   nodeId: string;
   description: string;
   variants: FigmaComponentVariant[];
+};
+
+export type Variable = {
+  id: string;
+  name: string;
+  key: string;
+  variableCollectionId: string;
+  resolvedType: VariableType;
+  valuesByMode: Record<string, boolean | number | string | VariableAlias>;
+  description: string;
+  scopes: VariableScope[];
+};
+
+export type VariableMode = {
+  modeId: string;
+  name: string;
+};
+
+export type VariableCollection = {
+  id: string;
+  name: string;
+  key: string;
+  modes: VariableMode[];
+  defaultModeId: string;
+  variableIds: string[];
 };

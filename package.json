@@ -44,6 +44,7 @@
     "clean": "rimraf ./dist ./coverage",
     "compile": "microbundle build --compress --no-sourcemap --format modern,cjs --tsconfig tsconfig.build.json",
     "build": "yarn clean && yarn compile",
+    "debug": "npx tsx src/test.ts",
     "test": "jest --coverage",
     "quality:fix": "eslint --fix src/**/*.ts",
     "quality:check": "eslint src/**/*.ts"

@@ -2,7 +2,7 @@ import { Component, FigmaComponentData, FigmaComponentVariant } from "../types";
 import { FigmaComponent } from "./component";
 
 class ComponentsCollectionMap extends Map<string, FigmaComponent> {
-  parseComponents(sets: Record<string, Component> = {}, components: Record<string, Component> = {}) {
+  parse(sets: Record<string, Component> = {}, components: Record<string, Component> = {}) {
     const singleVariantComponents = Object.keys(components)
       .filter((id) => !components[id].componentSetId)
       .map((id): FigmaComponentData => {

@@ -38,7 +38,9 @@ import {
   Style,
   Transform,
   TypeStyle,
+  Variable,
   VariableAlias,
+  VariableCollection,
   Vector,
 } from "./properties";
 
@@ -247,4 +249,11 @@ export type FigmaFile = {
   styles: Record<string, Style>;
   mainFileKey: string;
   branches: Branch[];
+};
+
+export type VariablesFile = {
+  meta: {
+    variables: Record<string, Variable>;
+    variableCollections: Record<string, VariableCollection>;
+  };
 };

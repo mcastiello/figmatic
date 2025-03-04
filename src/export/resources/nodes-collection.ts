@@ -21,70 +21,83 @@ import {
 } from "../nodes";
 
 class NodesCollectionMap extends Map<string, FigmaNode> {
+  private nameMap: Map<string, string[]> = new Map();
+
   getByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
     return Array.from(this.values()).filter((node) => isTypedNode(node, type));
   }
 
-  parse(data?: Record<string, unknown>) {
+  getByName(name: string): FigmaNode[] {
+    const ids = this.nameMap.get(name);
+
+    return ids?.map((id) => this.get(id)).filter((node) => !!node) || [];
+  }
+
+  parse(data?: Record<string, unknown>, parentId?: string) {
     let node: FigmaNode | undefined;
     if (isTypedNodeData(data, NodeType.BooleanOperation)) {
-      node = new BooleanOperationNode(data);
+      node = new BooleanOperationNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Canvas)) {
-      node = new CanvasNode(data);
+      node = new CanvasNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.ComponentSet)) {
-      node = new ComponentSetNode(data);
+      node = new ComponentSetNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Component)) {
-      node = new ComponentNode(data);
+      node = new ComponentNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Document)) {
-      node = new DocumentNode(data);
+      node = new DocumentNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Ellipse)) {
-      node = new EllipseNode(data);
+      node = new EllipseNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Frame)) {
-      node = new FrameNode(data);
+      node = new FrameNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Group)) {
-      node = new GroupNode(data);
+      node = new GroupNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Instance)) {
-      node = new InstanceNode(data);
+      node = new InstanceNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Line)) {
-      node = new LineNode(data);
+      node = new LineNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Rectangle)) {
-      node = new RectangleNode(data);
+      node = new RectangleNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.RegularPolygon)) {
-      node = new RegularPolygonNode(data);
+      node = new RegularPolygonNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Section)) {
-      node = new SectionNode(data);
+      node = new SectionNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Star)) {
-      node = new StarNode(data);
+      node = new StarNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Text)) {
-      node = new TextNode(data);
+      node = new TextNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Vector)) {
-      node = new VectorNode(data);
+      node = new VectorNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.WashiTape)) {
-      node = new WashiTapeNode(data);
+      node = new WashiTapeNode(data, parentId);
     }
 
     if (node?.id) {
       this.set(node.id, node);
-    }
 
-    if (isNodeData(data)) {
-      data.children?.forEach((nodeData) => this.parse(nodeData));
+      if (node.name) {
+        const collection = this.nameMap.get(node.name) || [];
+        this.nameMap.set(node.name, [...collection, node.id]);
+      }
+
+      if (isNodeData(data)) {
+        data.children?.forEach((nodeData) => this.parse(nodeData, node.id));
+      }
     }
   }
 }
