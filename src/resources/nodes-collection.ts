@@ -1,4 +1,5 @@
-import { isNodeData, isTypedNode, isTypedNodeData, NodesMap, NodeType } from "../types";
+import { NodesMap, NodeType } from "../types";
+import { isNodeData, isTypedNode, isTypedNodeData } from "../types/internal";
 import {
   BooleanOperationNode,
   CanvasNode,
@@ -19,6 +20,7 @@ import {
   VectorNode,
   WashiTapeNode,
 } from "../nodes";
+import { TokensCollection } from "./tokens-collection";
 
 class NodesCollectionMap extends Map<string, FigmaNode> {
   private nameMap: Map<string, string[]> = new Map();
@@ -27,19 +29,44 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
     return Array.from(this.values()).filter((node) => isTypedNode(node, type));
   }
 
-  getByName(name: string): FigmaNode[] {
-    const ids = this.nameMap.get(name);
+  getByName(name: string | RegExp): FigmaNode[] {
+    const ids: string[] = [];
+    if (name instanceof RegExp) {
+      const values = Array.from(
+        new Set(
+          Array.from(this.nameMap.keys())
+            .filter((key) => name.test(key))
+            .map((key) => this.nameMap.get(key) || [])
+            .reduce((list, ids) => [...list, ...ids], []),
+        ),
+      );
+
+      ids.push(...values);
+    } else {
+      const values = this.nameMap.get(name) || [];
+
+      ids.push(...values);
+    }
 
     return ids?.map((id) => this.get(id)).filter((node) => !!node) || [];
   }
 
-  parse(data?: Record<string, unknown>, parentId?: string) {
+  parse(data?: Record<string, unknown>, pageFilters?: (string | RegExp)[], parentId?: string) {
     let node: FigmaNode | undefined;
     if (isTypedNodeData(data, NodeType.BooleanOperation)) {
       node = new BooleanOperationNode(data, parentId);
     }
     if (isTypedNodeData(data, NodeType.Canvas)) {
-      node = new CanvasNode(data, parentId);
+      if (
+        isNodeData(data) &&
+        (!pageFilters ||
+          pageFilters.length === 0 ||
+          pageFilters.some((filter) =>
+            filter instanceof RegExp ? filter.test(data.name) : filter.toLowerCase() === data.name.toLowerCase(),
+          ))
+      ) {
+        node = new CanvasNode(data, parentId);
+      }
     }
     if (isTypedNodeData(data, NodeType.ComponentSet)) {
       node = new ComponentSetNode(data, parentId);
@@ -95,10 +122,19 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
         this.nameMap.set(node.name, [...collection, node.id]);
       }
 
+      Object.entries(node.stiles).map(([styleId, style]) => {
+        TokensCollection.setStyle(styleId, style);
+      });
+
       if (isNodeData(data)) {
-        data.children?.forEach((nodeData) => this.parse(nodeData, node.id));
+        data.children?.forEach((nodeData) => this.parse(nodeData, pageFilters, node.id));
       }
     }
+  }
+
+  clear() {
+    super.clear();
+    this.nameMap.clear();
   }
 }
 

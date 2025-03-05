@@ -15,7 +15,7 @@ import {
   StrokeAlign,
   StrokeCap,
   StrokeJoin,
-  StyleType,
+  TokenStyleTypes,
 } from "./enumerators";
 import {
   Annotation,
@@ -65,6 +65,18 @@ export type GenericNode<Type extends NodeType = NodeType> = Omit<NodeData, "type
 export type BaseNodeDefinitionData = Partial<Omit<NodeData, "children" | "type" | "id">>;
 export type NodeDefinitionData<DataType extends GenericNodeData = GenericNodeData> = BaseNodeDefinitionData &
   Partial<Omit<DataType, "type">>;
+
+export type StyledNodeProperties = {
+  effects?: Effect[];
+  fills?: Paint[];
+  strokes?: Paint[];
+  style?: TypeStyle;
+};
+
+export type StyledNodeData<DataType extends GenericNodeData = GenericNodeData> = NodeDefinitionData<DataType> &
+  StyledNodeProperties & {
+    styles: Partial<Record<TokenStyleTypes, string>>;
+  };
 
 export type DocumentNodeData = GenericNodeData<NodeType.Document>;
 
@@ -124,7 +136,7 @@ export type FrameNodeData<Type extends NodeType = NodeType.Frame> = GenericNodeD
   strokeWeight: number;
   strokes: Paint[];
   strokesIncludedInLayout: boolean;
-  styles: Partial<Record<StyleType, string>>;
+  styles: Partial<Record<TokenStyleTypes, string>>;
   targetAspectRatio: Vector;
 };
 
@@ -169,7 +181,7 @@ export type VectorNodeData<Type extends NodeType = NodeType.Vector> = GenericNod
   strokeMiterAngle: number;
   strokeWeight: number;
   strokes: Paint[];
-  styles: Partial<Record<StyleType, string>>;
+  styles: Partial<Record<TokenStyleTypes, string>>;
 };
 
 export type BooleanOperationNodeData = VectorNodeData<NodeType.BooleanOperation> & {
@@ -256,4 +268,10 @@ export type VariablesFile = {
     variables: Record<string, Variable>;
     variableCollections: Record<string, VariableCollection>;
   };
+};
+
+export type ExportFile = {
+  err: string;
+  status: number;
+  images: Record<string, string>;
 };

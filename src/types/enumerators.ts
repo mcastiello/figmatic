@@ -336,3 +336,19 @@ export enum VariableScope {
   TextFill = "TEXT_FILL",
   WidthHeight = "WIDTH_HEIGHT",
 }
+
+export enum ExportFormat {
+  JPG = "jpg",
+  PDF = "pdf",
+  PNG = "png",
+  SVG = "svg",
+}
+
+export enum TokenStyleTypes {
+  Fill = "fill",
+  Fills = "fills",
+  Stroke = "stroke",
+  Strokes = "strokes",
+  Effect = "effect",
+  Text = "text",
+}

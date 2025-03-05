@@ -1,10 +1,10 @@
 {
   "name": "@mcastiello/figmatic",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Marco Castiello <marco.castiello@gmail.com>",
   "license": "MIT",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.modern.mjs",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -25,7 +25,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.modern.mjs",
       "default": "./dist/index.js"
     }
@@ -44,13 +44,16 @@
     "clean": "rimraf ./dist ./coverage",
     "compile": "microbundle build --compress --no-sourcemap --format modern,cjs --tsconfig tsconfig.build.json",
     "build": "yarn clean && yarn compile",
-    "debug": "npx tsx src/test.ts",
-    "test": "jest --coverage",
+    "test": "jest --coverage --passWithNoTests",
     "quality:fix": "eslint --fix src/**/*.ts",
     "quality:check": "eslint src/**/*.ts"
   },
+  "dependencies": {
+    "@mcastiello/event-bus": "^0.1.3"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.9",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "eslint": "^8.57.1",
