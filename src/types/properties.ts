@@ -42,6 +42,11 @@ export type Style = {
   styleType: StyleType;
 };
 
+export type StyleData = Style & {
+  id: string;
+  data: Paint | Effect | TypeStyle;
+};
+
 // Properties
 export type GenericPropertyData<Type extends PropertyTypes> = {
   type: Type;

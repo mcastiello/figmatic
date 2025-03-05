@@ -1288,6 +1288,18 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@mcastiello/cancellable-promise@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/@mcastiello/cancellable-promise/-/cancellable-promise-0.0.3.tgz#2a066bf7148b6a61dead436af9f40778058f6aa0"
+  integrity sha512-HjoV2G282HhdjWjBwfUBI7mQsOc/ci6hBFIALhGKICQD48Mf/jcO+0220YoNUIRhf0CcYYFfzDgo7750Ba4Vhw==
+
+"@mcastiello/event-bus@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.npmjs.org/@mcastiello/event-bus/-/event-bus-0.1.3.tgz#5f6f47fabebc85e24364c835a17b506d75cbfbf5"
+  integrity sha512-0KeQqKbo46kxmDTL1vCtCndR2v+jxTZZQ7phkOEp6JMmRR2j1ZVE0ptGvRafqv1w7Pqk9vuFeU72Ep42G2i1KA==
+  dependencies:
+    "@mcastiello/cancellable-promise" "^0.0.3"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -1507,6 +1519,13 @@
   version "22.13.8"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.8.tgz#57e2450295b33a6518d6fd4f65f47236d3e41d8d"
   integrity sha512-G3EfaZS+iOGYWLLRCEAXdWK9my08oHNZ+FHluRiggIYJPOXzhOiDgpVCUHaUvyIC5/fj7C/p637jdzC666AOKQ==
+  dependencies:
+    undici-types "~6.20.0"
+
+"@types/node@^22.13.9":
+  version "22.13.9"
+  resolved "https://registry.npmjs.org/@types/node/-/node-22.13.9.tgz#5d9a8f7a975a5bd3ef267352deb96fb13ec02eca"
+  integrity sha512-acBjXdRJ3A6Pb3tqnw9HZmyR3Fiol3aGxRCK1x3d+6CDAMjl7I649wpSd+yNURCjbOUGu9tqtLKnTGxmK6CyGw==
   dependencies:
     undici-types "~6.20.0"
 
