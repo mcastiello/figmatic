@@ -52,12 +52,18 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
     return this.data?.name;
   }
 
+  get definition() {
+    return this.data;
+  }
+
   get valid() {
     return !!this.nodeId;
   }
 
   get children() {
-    return this.childrenIds?.map((id) => NodesCollection.get(id)).filter((node) => !!node && node.valid);
+    return this.childrenIds
+      ?.map((id) => NodesCollection.get(id))
+      .filter((node): node is FigmaNode => !!node && node.valid);
   }
 
   get parent(): FigmaNode | undefined {
@@ -82,7 +88,7 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
           styles: Record<string, Paint | Effect | TypeStyle>,
           key: TokenStyleTypes,
         ): Record<string, Paint | Effect | TypeStyle> => {
-          const id = values.styles[key];
+          const id = values.styles?.[key];
           const property = STYLE_PROPERTY_MAP[key];
           const value = values[property];
           const flat = Array.isArray(value) ? value[0] : value;

@@ -1,5 +1,5 @@
 import { Component, FigmaComponentData, FigmaComponentVariant } from "../types";
-import { FigmaComponent } from "./component";
+import { FigmaComponent } from "./parse/component";
 
 class ComponentsCollectionMap extends Map<string, FigmaComponent> {
   parse(sets: Record<string, Component> = {}, components: Record<string, Component> = {}) {
