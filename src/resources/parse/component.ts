@@ -30,20 +30,24 @@ export class FigmaComponent {
     const parsedComponents = await Promise.all(
       nodes.map(
         async <Type extends NodeType>(node: FigmaNode<GenericNodeData<Type>>): Promise<ParsedComponent | undefined> => {
-          const parser: Parser<Type> = parsers[node.type];
-          if (parser && node.definition) {
-            const data = await parser.parse(node.definition);
-            const parsedChildren =
-              node.children && node.children.length > 0 ? await this.parseNodes(node.children, parsers) : [];
+          if (node) {
+            const parser: Parser<Type> | undefined = parsers[node.type as Type];
+            if (parser && node.definition) {
+              const data = await parser.parse(node.definition);
+              const parsedChildren =
+                node.children && node.children.length > 0 ? await this.parseNodes(node.children, parsers) : [];
 
-            return {
-              styles: data.styles,
-              markup: { ...data.markup, children: parsedChildren.map(({ markup }) => markup) },
-              code: [
-                ...data.code,
-                ...parsedChildren.map(({ code }) => code).reduce((result, code) => [...result, ...code], []),
-              ],
-            };
+              return {
+                styles: data.styles,
+                markup: { ...data.markup, children: parsedChildren.map(({ markup }) => markup) },
+                code: [
+                  ...(data.code || []),
+                  ...(parsedChildren
+                    .map(({ code }) => code)
+                    .reduce((result, code) => [...(result || []), ...(code || [])], []) || []),
+                ],
+              };
+            }
           }
         },
       ),
