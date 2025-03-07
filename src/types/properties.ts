@@ -259,13 +259,15 @@ export type FigmaComponentData = {
   variants: FigmaComponentVariant[];
 };
 
+export type VariableValue = boolean | number | string | Color;
+
 export type Variable = {
   id: string;
   name: string;
   key: string;
   variableCollectionId: string;
   resolvedType: VariableType;
-  valuesByMode: Record<string, boolean | number | string | VariableAlias>;
+  valuesByMode: Record<string, VariableValue | VariableAlias>;
   description: string;
   scopes: VariableScope[];
 };

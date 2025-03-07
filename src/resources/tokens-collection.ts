@@ -1,4 +1,15 @@
-import { Effect, Paint, Style, StyleData, TypeStyle, Variable, VariableCollection, VariablesFile } from "../types";
+import {
+  Effect,
+  Paint,
+  Style,
+  StyleData,
+  TypeStyle,
+  Variable,
+  VariableCollection,
+  VariablesFile,
+  VariableValue,
+} from "../types";
+import { isVariableAlias } from "../types/guards";
 
 class TokensCollectionMap extends Map<string, Variable> {
   private collections: Map<string, VariableCollection> = new Map();
@@ -54,6 +65,22 @@ class TokensCollectionMap extends Map<string, Variable> {
     return Array.from(this.stylesCollection.keys())
       .map((id) => this.getStyle(id))
       .filter((data) => !!data);
+  }
+
+  resolveTokenVariable(id: string): Record<string, VariableValue | undefined> | undefined {
+    const token = this.get(id);
+    if (token) {
+      return Object.keys(token.valuesByMode)
+        .map((key: string): [string, VariableValue | undefined] => {
+          const value = token.valuesByMode[key];
+          if (isVariableAlias(value)) {
+            const resolvedValue = this.resolveTokenVariable(value.id);
+            return [key, resolvedValue?.[key]];
+          }
+          return [key, value];
+        })
+        .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+    }
   }
 
   clear() {
