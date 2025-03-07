@@ -9,7 +9,7 @@ import {
   TypeStyle,
 } from "../types";
 import { GRAPHIC_NODES, isNodeData, isStyledNode, STYLE_PROPERTY_MAP } from "../types/internal";
-import { NodesCollection } from "../resources";
+import { NodesCollection, TokensCollection } from "../resources";
 
 export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   protected readonly nodeId: string | undefined;
@@ -70,8 +70,21 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
     return this.parentId ? NodesCollection.get(this.parentId) : undefined;
   }
 
+  get definition() {
+    return this.data;
+  }
+
   get isGraphicNode() {
     return this.nodeType ? GRAPHIC_NODES.includes(this.nodeType) : false;
+  }
+
+  getToken(type: TokenStyleTypes) {
+    if (this.data?.boundVariables) {
+      const token = this.data.boundVariables[type];
+      if (token) {
+        return TokensCollection.get(token.id);
+      }
+    }
   }
 
   getChildrenByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
