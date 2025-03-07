@@ -67,20 +67,31 @@ class TokensCollectionMap extends Map<string, Variable> {
       .filter((data) => !!data);
   }
 
-  resolveTokenVariable(id: string): Record<string, VariableValue | undefined> | undefined {
+  resolveTokenVariable(id: string): Record<string, VariableValue | undefined> {
     const token = this.get(id);
     if (token) {
-      return Object.keys(token.valuesByMode)
-        .map((key: string): [string, VariableValue | undefined] => {
+      return Object.keys(token.valuesByMode).reduce(
+        (result: Record<string, VariableValue | undefined>, key: string): Record<string, VariableValue | undefined> => {
           const value = token.valuesByMode[key];
           if (isVariableAlias(value)) {
             const resolvedValue = this.resolveTokenVariable(value.id);
-            return [key, resolvedValue?.[key]];
+            return {
+              ...result,
+              ...Object.keys(resolvedValue).reduce(
+                (result: Record<string, VariableValue | undefined>, subKey: string) => ({
+                  ...result,
+                  [`${key}+${subKey}`]: resolvedValue?.[subKey],
+                }),
+                {},
+              ),
+            };
           }
-          return [key, value];
-        })
-        .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+          return { ...result, [key]: value };
+        },
+        {},
+      );
     }
+    return {};
   }
 
   clear() {
