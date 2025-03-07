@@ -8,9 +8,9 @@ import {
   VariableCollection,
   VariableMode,
   VariablesFile,
-  VariableValue,
+  isVariableAlias,
 } from "../types";
-import { isVariableAlias } from "../types/guards";
+import { ColorValue } from "./color";
 
 class TokensCollectionMap extends Map<string, Variable> {
   private collections: Map<string, VariableCollection> = new Map();
@@ -81,18 +81,21 @@ class TokensCollectionMap extends Map<string, Variable> {
       .find((mode) => mode.modeId === id)?.name;
   }
 
-  resolveTokenVariable(id: string): Record<string, VariableValue | undefined> {
+  resolveTokenVariable(id: string): Record<string, boolean | number | string | ColorValue | undefined> {
     const token = this.get(id) || this.getByKey(id);
     if (token) {
       return Object.keys(token.valuesByMode).reduce(
-        (result: Record<string, VariableValue | undefined>, key: string): Record<string, VariableValue | undefined> => {
+        (
+          result: Record<string, boolean | number | string | ColorValue | undefined>,
+          key: string,
+        ): Record<string, boolean | number | string | ColorValue | undefined> => {
           const value = token.valuesByMode[key];
           if (isVariableAlias(value)) {
             const resolvedValue = this.resolveTokenVariable(value.id);
             return {
               ...result,
               ...Object.keys(resolvedValue).reduce(
-                (result: Record<string, VariableValue | undefined>, subKey: string) => ({
+                (result: Record<string, boolean | number | string | ColorValue | undefined>, subKey: string) => ({
                   ...result,
                   [`${key}+${subKey}`]: resolvedValue?.[subKey],
                 }),
@@ -100,7 +103,7 @@ class TokensCollectionMap extends Map<string, Variable> {
               ),
             };
           }
-          return { ...result, [key]: value };
+          return { ...result, [key]: typeof value === "object" ? new ColorValue(value) : value };
         },
         {},
       );
