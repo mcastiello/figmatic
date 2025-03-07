@@ -10,7 +10,7 @@ import {
   VariablesFile,
   isVariableAlias,
 } from "../types";
-import { ColorValue } from "./color";
+import { ColorValue } from "./parse";
 
 class TokensCollectionMap extends Map<string, Variable> {
   private collections: Map<string, VariableCollection> = new Map();

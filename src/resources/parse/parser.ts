@@ -1,5 +1,5 @@
-import { NodeDefinitionData, NodeType, ParsedComponent } from "../../types";
+import { GenericNodeData, NodeDefinitionData, NodeType, ParsedComponent } from "../../types";
 
 export abstract class Parser<Type extends NodeType> {
-  abstract async parse(data: NodeDefinitionData<Type>): Promise<ParsedComponent>;
+  abstract parse(data: NodeDefinitionData<GenericNodeData<Type>>): Promise<ParsedComponent>;
 }
