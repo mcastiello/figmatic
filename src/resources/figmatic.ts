@@ -90,17 +90,17 @@ class FigmaLoader {
     return this.branch || this.file;
   }
 
-  private async downloadSelectedBranch(): Promise<void> {
-    if (this.selectedBranch && this.token) {
+  private async downloadBranch(fileName: string): Promise<void> {
+    if (this.token) {
       try {
-        this.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: this.selectedBranch });
+        this.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${this.selectedBranch}" started`,
+          message: `Download of branch "${fileName}" started`,
           severity: FigmaticSeverity.Debug,
           timestamp: Date.now(),
         });
 
-        const file = await fetch(`${FIGMA_ENDPOINT}/files/${this.selectedBranch}`, {
+        const file = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -111,18 +111,18 @@ class FigmaLoader {
 
         const data = await file.json();
 
-        this.data.set(this.selectedBranch, data);
+        this.data.set(fileName, data);
 
-        this.channel.publish(FigmaticEvents.BranchDownloadCompleted, { branch: this.selectedBranch });
+        this.channel.publish(FigmaticEvents.BranchDownloadCompleted, { branch: fileName });
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${this.selectedBranch}" completed`,
+          message: `Download of branch "${fileName}" completed`,
           severity: FigmaticSeverity.Debug,
           timestamp: Date.now(),
         });
       } catch (error) {
         this.channel.publish(FigmaticEvents.BranchDownloadFailed, error as Error);
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${this.selectedBranch}" failed`,
+          message: `Download of branch "${fileName}" failed`,
           severity: FigmaticSeverity.Error,
           timestamp: Date.now(),
           data: { error },
@@ -130,14 +130,14 @@ class FigmaLoader {
       }
 
       try {
-        this.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: this.selectedBranch });
+        this.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for "${this.selectedBranch}" started`,
+          message: `Download of tokens for "${fileName}" started`,
           severity: FigmaticSeverity.Debug,
           timestamp: Date.now(),
         });
 
-        const response = await fetch(`${FIGMA_ENDPOINT}/files/${this.selectedBranch}/variables/local`, {
+        const localVariablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/local`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -146,25 +146,50 @@ class FigmaLoader {
           },
         });
 
-        const variables = await response.json();
+        const localVariables: VariablesFile = await localVariablesFile.json();
 
-        this.variables.set(this.selectedBranch, variables);
+        const remoteVariablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/published`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Charset": "UTF-8",
+            "X-Figma-Token": this.token,
+          },
+        });
 
-        this.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: this.selectedBranch });
+        const remoteVariables: VariablesFile = await remoteVariablesFile.json();
+
+        this.variables.set(fileName, {
+          meta: {
+            variables: { ...remoteVariables.meta.variables, ...localVariables.meta.variables },
+            variableCollections: {
+              ...remoteVariables.meta.variableCollections,
+              ...localVariables.meta.variableCollections,
+            },
+          },
+        });
+
+        this.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for branch "${this.selectedBranch}" completed`,
+          message: `Download of tokens for branch "${fileName}" completed`,
           severity: FigmaticSeverity.Debug,
           timestamp: Date.now(),
         });
       } catch (error) {
         this.channel.publish(FigmaticEvents.TokensDownloadFailed, error as Error);
         this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for branch "${this.selectedBranch}" failed`,
+          message: `Download of tokens for branch "${fileName}" failed`,
           severity: FigmaticSeverity.Error,
           timestamp: Date.now(),
           data: { error },
         });
       }
+    }
+  }
+
+  private async downloadSelectedBranch(): Promise<void> {
+    if (this.selectedBranch) {
+      return this.downloadBranch(this.selectedBranch);
     }
   }
 
@@ -184,7 +209,6 @@ class FigmaLoader {
             data: { filters: this.pageFilters },
           });
 
-          NodesCollection.clear();
           NodesCollection.parse(data.document, this.pageFilters);
 
           const end = Date.now();
@@ -213,7 +237,6 @@ class FigmaLoader {
             timestamp: Date.now(),
           });
 
-          ComponentsCollection.clear();
           ComponentsCollection.parse(data.componentSets, data.components);
 
           this.channel.publish(FigmaticEvents.ParseComponentsCompleted);
@@ -240,7 +263,6 @@ class FigmaLoader {
             timestamp: Date.now(),
           });
 
-          TokensCollection.clear();
           if (variables) {
             TokensCollection.parse(variables, data.styles);
           }
@@ -262,6 +284,12 @@ class FigmaLoader {
         }
       }
     }
+  }
+
+  clear() {
+    NodesCollection.clear();
+    ComponentsCollection.clear();
+    TokensCollection.clear();
   }
 
   async downloadGraphics(

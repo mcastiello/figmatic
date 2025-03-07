@@ -6,10 +6,11 @@ import {
   TypeStyle,
   Variable,
   VariableCollection,
+  VariableMode,
   VariablesFile,
-  VariableValue,
+  isVariableAlias,
 } from "../types";
-import { isVariableAlias } from "../types/guards";
+import { ColorValue } from "./color";
 
 class TokensCollectionMap extends Map<string, Variable> {
   private collections: Map<string, VariableCollection> = new Map();
@@ -67,20 +68,47 @@ class TokensCollectionMap extends Map<string, Variable> {
       .filter((data) => !!data);
   }
 
-  resolveTokenVariable(id: string): Record<string, VariableValue | undefined> | undefined {
-    const token = this.get(id);
+  getByKey(key: string): Variable | undefined {
+    key = key.split("/").shift()?.replace("VariableID:", "") || "";
+    if (key) {
+      return Array.from(this.values()).find((token) => token.key === key);
+    }
+  }
+
+  getModeName(id: string): string | undefined {
+    return this.getCollections()
+      .reduce((modes: VariableMode[], collection) => [...modes, ...collection.modes], [])
+      .find((mode) => mode.modeId === id)?.name;
+  }
+
+  resolveTokenVariable(id: string): Record<string, boolean | number | string | ColorValue | undefined> {
+    const token = this.get(id) || this.getByKey(id);
     if (token) {
-      return Object.keys(token.valuesByMode)
-        .map((key: string): [string, VariableValue | undefined] => {
+      return Object.keys(token.valuesByMode).reduce(
+        (
+          result: Record<string, boolean | number | string | ColorValue | undefined>,
+          key: string,
+        ): Record<string, boolean | number | string | ColorValue | undefined> => {
           const value = token.valuesByMode[key];
           if (isVariableAlias(value)) {
             const resolvedValue = this.resolveTokenVariable(value.id);
-            return [key, resolvedValue?.[key]];
+            return {
+              ...result,
+              ...Object.keys(resolvedValue).reduce(
+                (result: Record<string, boolean | number | string | ColorValue | undefined>, subKey: string) => ({
+                  ...result,
+                  [`${key}+${subKey}`]: resolvedValue?.[subKey],
+                }),
+                {},
+              ),
+            };
           }
-          return [key, value];
-        })
-        .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+          return { ...result, [key]: typeof value === "object" ? new ColorValue(value) : value };
+        },
+        {},
+      );
     }
+    return {};
   }
 
   clear() {
