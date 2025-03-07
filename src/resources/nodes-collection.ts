@@ -1,5 +1,4 @@
-import { NodesMap, NodeType } from "../types";
-import { isNodeData, isTypedNode, isTypedNodeData } from "../types/internal";
+import { NodesMap, NodeType, isNodeData, isTypedNode, isTypedNodeData } from "../types";
 import {
   BooleanOperationNode,
   CanvasNode,
