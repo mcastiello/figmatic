@@ -7,8 +7,10 @@ import {
   Paint,
   TokenStyleTypes,
   TypeStyle,
+  isNodeData,
+  isStyledNode,
 } from "../types";
-import { GRAPHIC_NODES, isNodeData, isStyledNode, STYLE_PROPERTY_MAP } from "../types/internal";
+import { GRAPHIC_NODES, STYLE_PROPERTY_MAP } from "../types/internal";
 import { NodesCollection, TokensCollection } from "../resources";
 
 export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
