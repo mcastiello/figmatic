@@ -75,10 +75,11 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   getToken(type: TokenStyleTypes) {
     if (this.data?.boundVariables) {
       const token = this.data.boundVariables[type];
-      if (token) {
-        return TokensCollection.get(token.id);
-      }
+      const list = Array.isArray(token) ? token : token ? [token] : [];
+
+      return list.map(({ id }) => TokensCollection.get(id)).filter((token) => !!token);
     }
+    return [];
   }
 
   getChildrenByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
