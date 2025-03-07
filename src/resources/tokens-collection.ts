@@ -6,6 +6,7 @@ import {
   TypeStyle,
   Variable,
   VariableCollection,
+  VariableMode,
   VariablesFile,
   VariableValue,
 } from "../types";
@@ -67,8 +68,21 @@ class TokensCollectionMap extends Map<string, Variable> {
       .filter((data) => !!data);
   }
 
+  getByKey(key: string): Variable | undefined {
+    key = key.split("/").shift()?.replace("VariableID:", "") || "";
+    if (key) {
+      return Array.from(this.values()).find((token) => token.key === key);
+    }
+  }
+
+  getModeName(id: string): string | undefined {
+    return this.getCollections()
+      .reduce((modes: VariableMode[], collection) => [...modes, ...collection.modes], [])
+      .find((mode) => mode.modeId === id)?.name;
+  }
+
   resolveTokenVariable(id: string): Record<string, VariableValue | undefined> {
-    const token = this.get(id);
+    const token = this.get(id) || this.getByKey(id);
     if (token) {
       return Object.keys(token.valuesByMode).reduce(
         (result: Record<string, VariableValue | undefined>, key: string): Record<string, VariableValue | undefined> => {
