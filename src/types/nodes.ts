@@ -45,7 +45,7 @@ import {
 } from "./properties";
 
 export type NodeData = {
-  boundVariables: Record<string, VariableAlias | VariableAlias[] | Record<string, VariableAlias>>;
+  boundVariables: Partial<Record<TokenStyleTypes, VariableAlias>>;
   children?: NodeData[];
   componentPropertyReferences: Record<string, string>;
   explicitVariableModes: Record<string, string>;
