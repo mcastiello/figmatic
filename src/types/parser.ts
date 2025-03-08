@@ -9,6 +9,7 @@ export type FigmaComponentData = {
   nodeId: string;
   description: string;
   variants: FigmaComponentVariant[];
+  fileName: string;
 };
 
 export type ExportedStyles = {

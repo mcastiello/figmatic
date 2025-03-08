@@ -1,25 +1,15 @@
 import { EventBus } from "@mcastiello/event-bus";
 import type { EventOf, SubscriptionConfig, SubscriptionOf } from "@mcastiello/event-bus";
-import {
-  type ExportFile,
-  ExportFormat,
-  type FigmaFile,
-  FigmaticEvents,
-  FigmaticSeverity,
-  NodeType,
-  type VariablesFile,
-} from "../types";
-import { GRAPHIC_RESPONSE_TYPES } from "../types/internal";
+import { ExportFormat, type FigmaFile, FigmaticEvents, FigmaticSeverity, NodeType, type VariablesFile } from "../types";
 import { NodesCollection } from "./nodes-collection";
 import { ComponentsCollection } from "./components-collection";
 import { TokensCollection } from "./tokens-collection";
+import { CollectionParser } from "./parser";
+import { FigmaApi } from "./api";
 import { Channels, FigmaticBusConfig, type FigmaticBusDefinition } from "../types/events";
 import type { FigmaNode } from "../nodes";
 
-const FIGMA_ENDPOINT = "https://api.figma.com/v1";
-
 class FigmaLoader {
-  private token: string | undefined;
   private file: string | undefined;
   private branch: string | undefined;
   private pageFilters: (string | RegExp)[] | undefined;
@@ -57,9 +47,10 @@ class FigmaLoader {
 
   async load(file: string, token: string, pageFilters?: (string | RegExp)[]): Promise<void> {
     this.file = file;
-    this.token = token;
     this.branch = undefined;
     this.pageFilters = pageFilters;
+
+    FigmaApi.setToken(token);
 
     const start = Date.now();
 
@@ -91,26 +82,17 @@ class FigmaLoader {
   }
 
   private async downloadBranch(fileName: string): Promise<void> {
-    if (this.token) {
-      try {
-        this.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${fileName}" started`,
-          severity: FigmaticSeverity.Debug,
-          timestamp: Date.now(),
-        });
+    try {
+      this.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });
+      this.channel.publish(FigmaticEvents.Message, {
+        message: `Download of branch "${fileName}" started`,
+        severity: FigmaticSeverity.Debug,
+        timestamp: Date.now(),
+      });
 
-        const file = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept-Charset": "UTF-8",
-            "X-Figma-Token": this.token,
-          },
-        });
+      const data = await FigmaApi.getFigmaFile(fileName);
 
-        const data = await file.json();
-
+      if (data) {
         this.data.set(fileName, data);
 
         this.channel.publish(FigmaticEvents.BranchDownloadCompleted, { branch: fileName });
@@ -119,46 +101,32 @@ class FigmaLoader {
           severity: FigmaticSeverity.Debug,
           timestamp: Date.now(),
         });
-      } catch (error) {
-        this.channel.publish(FigmaticEvents.BranchDownloadFailed, error as Error);
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${fileName}" failed`,
-          severity: FigmaticSeverity.Error,
-          timestamp: Date.now(),
-          data: { error },
-        });
+      } else {
+        throw new Error("File not downloaded");
       }
+    } catch (error) {
+      this.channel.publish(FigmaticEvents.BranchDownloadFailed, error as Error);
+      this.channel.publish(FigmaticEvents.Message, {
+        message: `Download of branch "${fileName}" failed`,
+        severity: FigmaticSeverity.Error,
+        timestamp: Date.now(),
+        data: { error },
+      });
+    }
 
-      try {
-        this.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for "${fileName}" started`,
-          severity: FigmaticSeverity.Debug,
-          timestamp: Date.now(),
-        });
+    try {
+      this.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
+      this.channel.publish(FigmaticEvents.Message, {
+        message: `Download of tokens for "${fileName}" started`,
+        severity: FigmaticSeverity.Debug,
+        timestamp: Date.now(),
+      });
 
-        const localVariablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/local`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept-Charset": "UTF-8",
-            "X-Figma-Token": this.token,
-          },
-        });
+      const localVariables = await FigmaApi.getLocalVariables(fileName);
 
-        const localVariables: VariablesFile = await localVariablesFile.json();
+      const remoteVariables = await FigmaApi.getPublishedVariables(fileName);
 
-        const remoteVariablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/published`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept-Charset": "UTF-8",
-            "X-Figma-Token": this.token,
-          },
-        });
-
-        const remoteVariables: VariablesFile = await remoteVariablesFile.json();
-
+      if (localVariables && remoteVariables) {
         this.variables.set(fileName, {
           meta: {
             variables: { ...remoteVariables.meta.variables, ...localVariables.meta.variables },
@@ -168,22 +136,22 @@ class FigmaLoader {
             },
           },
         });
-
-        this.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for branch "${fileName}" completed`,
-          severity: FigmaticSeverity.Debug,
-          timestamp: Date.now(),
-        });
-      } catch (error) {
-        this.channel.publish(FigmaticEvents.TokensDownloadFailed, error as Error);
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of tokens for branch "${fileName}" failed`,
-          severity: FigmaticSeverity.Error,
-          timestamp: Date.now(),
-          data: { error },
-        });
       }
+
+      this.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
+      this.channel.publish(FigmaticEvents.Message, {
+        message: `Download of tokens for branch "${fileName}" completed`,
+        severity: FigmaticSeverity.Debug,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      this.channel.publish(FigmaticEvents.TokensDownloadFailed, error as Error);
+      this.channel.publish(FigmaticEvents.Message, {
+        message: `Download of tokens for branch "${fileName}" failed`,
+        severity: FigmaticSeverity.Error,
+        timestamp: Date.now(),
+        data: { error },
+      });
     }
   }
 
@@ -209,7 +177,7 @@ class FigmaLoader {
             data: { filters: this.pageFilters },
           });
 
-          NodesCollection.parse(data.document, this.pageFilters);
+          CollectionParser.parseNodes(data.document, this.pageFilters);
 
           const end = Date.now();
           this.channel.publish(FigmaticEvents.ParseNodesCompleted);
@@ -237,7 +205,7 @@ class FigmaLoader {
             timestamp: Date.now(),
           });
 
-          ComponentsCollection.parse(data.componentSets, data.components);
+          CollectionParser.parseComponents(this.selectedBranch, data.componentSets, data.components);
 
           this.channel.publish(FigmaticEvents.ParseComponentsCompleted);
           this.channel.publish(FigmaticEvents.Message, {
@@ -264,7 +232,7 @@ class FigmaLoader {
           });
 
           if (variables) {
-            TokensCollection.parse(variables, data.styles);
+            CollectionParser.parseTokens(variables, data.styles);
           }
 
           this.channel.publish(FigmaticEvents.ParseTokensCompleted);
@@ -297,7 +265,7 @@ class FigmaLoader {
     format: ExportFormat = ExportFormat.SVG,
     scale: number = 1,
   ): Promise<Record<string, string | ArrayBuffer>> {
-    if (this.selectedBranch && this.token) {
+    if (this.selectedBranch) {
       try {
         const start = Date.now();
         const nodeNames = nodes.map(({ name, id }) => name || id).filter((value): value is string => !!value);
@@ -311,40 +279,9 @@ class FigmaLoader {
           severity: FigmaticSeverity.Info,
           timestamp: start,
         });
-        const nodeIds = nodes.map((node) => node.id).join(",");
-        const response = await fetch(
-          `${FIGMA_ENDPOINT}/images/${this.selectedBranch}?ids=${nodeIds}&scale=${scale}&format=${format}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept-Charset": "UTF-8",
-              "X-Figma-Token": this.token,
-            },
-          },
-        );
+        const nodeIds = nodes.map((node) => node.id).filter((id): id is string => !!id);
 
-        const imageLinks: ExportFile = await response.json();
-        const images: Record<string, string | ArrayBuffer> = {};
-
-        for (const [id, url] of Object.entries(imageLinks.images)) {
-          if (url) {
-            this.channel.publish(FigmaticEvents.Message, {
-              message: `Download of image ${url}`,
-              severity: FigmaticSeverity.Debug,
-              timestamp: Date.now(),
-            });
-            const image = await fetch(url, {
-              method: "GET",
-              headers: {
-                "Content-Type": GRAPHIC_RESPONSE_TYPES[format],
-                "Accept-Charset": "UTF-8",
-              },
-            });
-
-            images[id] = format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer();
-          }
-        }
+        const images = await FigmaApi.downloadGraphicNodes(this.selectedBranch, nodeIds, format, scale);
 
         const end = Date.now();
         this.channel.publish(FigmaticEvents.GraphicDownloadCompleted, {

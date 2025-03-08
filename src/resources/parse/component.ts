@@ -10,7 +10,7 @@ import type { ComponentParsers, ExportPlugin } from "./plugin";
 import { NodesCollection } from "../nodes-collection";
 import type { FigmaNode } from "../../nodes";
 import type { Parser } from "./parser";
-import { Figmatic } from "../figmatic";
+import { FigmaApi } from "../api";
 
 export class FigmaComponent {
   protected readonly data: FigmaComponentData;
@@ -43,8 +43,8 @@ export class FigmaComponent {
       nodes.map(
         async <Type extends NodeType>(node: FigmaNode<GenericNodeData<Type>>): Promise<ParsedComponent | undefined> => {
           if (node) {
-            if (node.isGraphicNode && svg) {
-              const exports = await Figmatic.downloadGraphics([node], ExportFormat.SVG);
+            if (node.id && node.isGraphicNode && svg) {
+              const exports = await FigmaApi.downloadGraphicNodes(this.data.fileName, [node.id], ExportFormat.SVG);
               const markup = Object.values(exports).shift();
               if (typeof markup === "string") {
                 return {

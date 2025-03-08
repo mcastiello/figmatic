@@ -12,7 +12,7 @@ import {
   type NodeType,
   OverflowDirection,
 } from "../types";
-import { NodesCollection } from "../resources";
+import { NodesCollection } from "../resources/nodes-collection";
 
 export class InstanceNode extends FigmaNode<InstanceNodeData> {
   protected readonly overrideIds: string[] | undefined;
