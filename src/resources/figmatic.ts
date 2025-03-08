@@ -1,20 +1,20 @@
 import { EventBus } from "@mcastiello/event-bus";
 import type { EventOf, SubscriptionConfig, SubscriptionOf } from "@mcastiello/event-bus";
 import {
-  ExportFile,
+  type ExportFile,
   ExportFormat,
-  FigmaFile,
+  type FigmaFile,
   FigmaticEvents,
   FigmaticSeverity,
   NodeType,
-  VariablesFile,
+  type VariablesFile,
 } from "../types";
 import { GRAPHIC_RESPONSE_TYPES } from "../types/internal";
 import { NodesCollection } from "./nodes-collection";
 import { ComponentsCollection } from "./components-collection";
 import { TokensCollection } from "./tokens-collection";
-import { Channels, FigmaticBusConfig, FigmaticBusDefinition } from "../types/events";
-import { FigmaNode } from "../nodes";
+import { Channels, FigmaticBusConfig, type FigmaticBusDefinition } from "../types/events";
+import type { FigmaNode } from "../nodes";
 
 const FIGMA_ENDPOINT = "https://api.figma.com/v1";
 

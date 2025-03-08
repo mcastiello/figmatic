@@ -18,4 +18,4 @@ export * from "./text";
 export * from "./vector";
 export * from "./washi-tape";
 
-export { FigmaNode };
+export type { FigmaNode };

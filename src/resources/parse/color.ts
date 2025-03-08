@@ -1,4 +1,4 @@
-import { Color, RGBColor } from "../types";
+import type { Color, RGBColor } from "../../types";
 
 export class ColorValue {
   private readonly color: Color;

@@ -1,16 +1,16 @@
 import {
-  Effect,
-  Paint,
-  Style,
-  StyleData,
-  TypeStyle,
-  Variable,
-  VariableCollection,
-  VariableMode,
-  VariablesFile,
+  type Effect,
+  type Paint,
+  type Style,
+  type StyleData,
+  type TypeStyle,
+  type Variable,
+  type VariableCollection,
+  type VariableMode,
+  type VariablesFile,
   isVariableAlias,
 } from "../types";
-import { ColorValue } from "./color";
+import { ColorValue } from "./parse";
 
 class TokensCollectionMap extends Map<string, Variable> {
   private collections: Map<string, VariableCollection> = new Map();
@@ -34,7 +34,7 @@ class TokensCollectionMap extends Map<string, Variable> {
   getByCollection(collectionId: string): Variable[] {
     const collection = this.collections.get(collectionId);
 
-    return collection?.variableIds?.map((id) => this.get(id)).filter((value) => !!value) || [];
+    return collection?.variableIds?.map((id) => this.get(id)).filter((value): value is Variable => !!value) || [];
   }
 
   getCollection(collectionId: string): VariableCollection | undefined {
@@ -65,7 +65,7 @@ class TokensCollectionMap extends Map<string, Variable> {
   getStyles(): StyleData[] {
     return Array.from(this.stylesCollection.keys())
       .map((id) => this.getStyle(id))
-      .filter((data) => !!data);
+      .filter((data): data is StyleData => !!data);
   }
 
   getByKey(key: string): Variable | undefined {

@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { LineNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type LineNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class LineNode extends FigmaNode<LineNodeData> {
   override get DefaultValues(): NodeDefinitionData<LineNodeData> {

@@ -2,15 +2,21 @@ import { FigmaNode } from "./node";
 import {
   AxisAlign,
   AxisSizing,
-  InstanceNodeData,
+  type GenericNode,
+  type InstanceNodeData,
+  isNodeData,
   LayoutMode,
   LayoutPositioning,
   LayoutWrap,
-  NodeDefinitionData,
+  type NodeDefinitionData,
+  type NodeType,
   OverflowDirection,
 } from "../types";
+import { NodesCollection } from "../resources";
 
 export class InstanceNode extends FigmaNode<InstanceNodeData> {
+  protected readonly overrideIds: string[] | undefined;
+
   override get DefaultValues(): NodeDefinitionData<InstanceNodeData> {
     return {
       ...super.DefaultValues,
@@ -46,5 +52,21 @@ export class InstanceNode extends FigmaNode<InstanceNodeData> {
       strokesIncludedInLayout: false,
       styles: {},
     };
+  }
+
+  constructor(data: Record<string, unknown>, parentId?: string) {
+    if (isNodeData<GenericNode<NodeType.Instance>>(data)) {
+      const { children, ...instanceData } = data;
+      super(instanceData, parentId);
+
+      this.overrideIds = children?.map(({ id }) => id);
+    }
+    super(data, parentId);
+  }
+
+  get overrides() {
+    return this.overrideIds
+      ?.map((id) => NodesCollection.get(id))
+      .filter((node): node is FigmaNode => !!node && node.valid);
   }
 }

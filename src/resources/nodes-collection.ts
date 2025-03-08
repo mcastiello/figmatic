@@ -1,4 +1,4 @@
-import { NodesMap, NodeType, isNodeData, isTypedNode, isTypedNodeData } from "../types";
+import { type NodesMap, NodeType, isNodeData, isTypedNode, isTypedNodeData } from "../types";
 import {
   BooleanOperationNode,
   CanvasNode,
@@ -6,7 +6,7 @@ import {
   ComponentSetNode,
   DocumentNode,
   EllipseNode,
-  FigmaNode,
+  type FigmaNode,
   FrameNode,
   GroupNode,
   InstanceNode,
@@ -47,7 +47,7 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
       ids.push(...values);
     }
 
-    return ids?.map((id) => this.get(id)).filter((node) => !!node) || [];
+    return ids?.map((id) => this.get(id)).filter((node): node is FigmaNode => !!node) || [];
   }
 
   parse(data?: Record<string, unknown>, pageFilters?: (string | RegExp)[], parentId?: string) {
@@ -113,12 +113,13 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
       node = new WashiTapeNode(data, parentId);
     }
 
-    if (node?.id) {
-      this.set(node.id, node);
+    if (node && node.id) {
+      const nodeId = node.id;
+      this.set(nodeId, node);
 
       if (node.name) {
         const collection = this.nameMap.get(node.name) || [];
-        this.nameMap.set(node.name, [...collection, node.id]);
+        this.nameMap.set(node.name, [...collection, nodeId]);
       }
 
       Object.entries(node.stiles).map(([styleId, style]) => {
@@ -126,7 +127,7 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
       });
 
       if (isNodeData(data)) {
-        data.children?.forEach((nodeData) => this.parse(nodeData, pageFilters, node.id));
+        data.children?.forEach((nodeData) => this.parse(nodeData, pageFilters, nodeId));
       }
     }
   }

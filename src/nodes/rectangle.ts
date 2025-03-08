@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { RectangleNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type RectangleNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class RectangleNode extends FigmaNode<RectangleNodeData> {
   override get DefaultValues(): NodeDefinitionData<RectangleNodeData> {

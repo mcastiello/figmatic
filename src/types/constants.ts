@@ -1,5 +1,5 @@
 import { ExportFormat, NodeType, TokenStyleTypes } from "./enumerators";
-import { StyledNodeProperties } from "./nodes";
+import type { StyledNodeProperties } from "./nodes";
 
 export const GRAPHIC_NODES: NodeType[] = [
   NodeType.BooleanOperation,
