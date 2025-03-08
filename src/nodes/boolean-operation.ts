@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { BooleanOperationNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type BooleanOperationNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class BooleanOperationNode extends FigmaNode<BooleanOperationNodeData> {
   override get DefaultValues(): NodeDefinitionData<BooleanOperationNodeData> {

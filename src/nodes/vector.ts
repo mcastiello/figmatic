@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { NodeDefinitionData, StrokeCap, StrokeJoin, VectorNodeData } from "../types";
+import { type NodeDefinitionData, StrokeCap, StrokeJoin, type VectorNodeData } from "../types";
 
 export class VectorNode extends FigmaNode<VectorNodeData> {
   override get DefaultValues(): NodeDefinitionData<VectorNodeData> {

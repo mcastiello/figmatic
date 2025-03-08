@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { NodeDefinitionData, StrokeCap, StrokeJoin, TextNodeData } from "../types";
+import { type NodeDefinitionData, StrokeCap, StrokeJoin, type TextNodeData } from "../types";
 
 export class TextNode extends FigmaNode<TextNodeData> {
   override get DefaultValues(): NodeDefinitionData<TextNodeData> {
@@ -18,5 +18,9 @@ export class TextNode extends FigmaNode<TextNodeData> {
       strokeJoin: StrokeJoin.Miter,
       strokeMiterAngle: 28.96,
     };
+  }
+
+  get content() {
+    return this.data?.characters || "";
   }
 }

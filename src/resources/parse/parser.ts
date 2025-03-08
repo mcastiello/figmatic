@@ -1,5 +1,6 @@
-import { GenericNodeData, NodeDefinitionData, NodeType, ParsedComponent } from "../../types";
+import type { GenericNodeData, NodeType, ParsedComponent } from "../../types";
+import type { FigmaNode } from "../../nodes";
 
 export abstract class Parser<Type extends NodeType> {
-  abstract parse(data: NodeDefinitionData<GenericNodeData<Type>>): Promise<ParsedComponent>;
+  abstract parse<Node extends FigmaNode<GenericNodeData<Type>>>(node: Node): Promise<ParsedComponent>;
 }

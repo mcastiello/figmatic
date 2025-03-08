@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { WashiTapeNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type WashiTapeNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class WashiTapeNode extends FigmaNode<WashiTapeNodeData> {
   override get DefaultValues(): NodeDefinitionData<WashiTapeNodeData> {

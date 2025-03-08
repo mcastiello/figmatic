@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { RegularPolygonNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type RegularPolygonNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class RegularPolygonNode extends FigmaNode<RegularPolygonNodeData> {
   override get DefaultValues(): NodeDefinitionData<RegularPolygonNodeData> {

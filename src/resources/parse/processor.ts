@@ -1,5 +1,5 @@
-import { FigmaComponentData, ParsedComponent } from "../../types";
+import type { ExportedComponent, FigmaComponentData, ParsedComponent } from "../../types";
 
 export abstract class Processor {
-  abstract generate(definition: FigmaComponentData, parsedComponents: ParsedComponent[]): Promise<string>;
+  abstract generate(definition: FigmaComponentData, parsedComponents: ParsedComponent[]): Promise<ExportedComponent>;
 }

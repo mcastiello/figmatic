@@ -1,4 +1,4 @@
-import { EventBusConfig } from "@mcastiello/event-bus";
+import type { EventBusConfig } from "@mcastiello/event-bus";
 
 export enum Channels {
   Figmatic = "figmatic",

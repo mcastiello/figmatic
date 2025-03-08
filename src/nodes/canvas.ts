@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { CanvasNodeData, NodeDefinitionData } from "../types";
+import { type CanvasNodeData, type NodeDefinitionData } from "../types";
 
 export class CanvasNode extends FigmaNode<CanvasNodeData> {
   override get DefaultValues(): NodeDefinitionData<CanvasNodeData> {

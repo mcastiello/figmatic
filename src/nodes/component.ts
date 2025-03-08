@@ -2,11 +2,11 @@ import { FigmaNode } from "./node";
 import {
   AxisAlign,
   AxisSizing,
-  ComponentNodeData,
+  type ComponentNodeData,
   LayoutMode,
   LayoutPositioning,
   LayoutWrap,
-  NodeDefinitionData,
+  type NodeDefinitionData,
   OverflowDirection,
 } from "../types";
 

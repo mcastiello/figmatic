@@ -1,5 +1,5 @@
 import { FigmaNode } from "./node";
-import { EllipseNodeData, NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
+import { type EllipseNodeData, type NodeDefinitionData, StrokeCap, StrokeJoin } from "../types";
 
 export class EllipseNode extends FigmaNode<EllipseNodeData> {
   override get DefaultValues(): NodeDefinitionData<EllipseNodeData> {

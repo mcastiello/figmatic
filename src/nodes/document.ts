@@ -1,4 +1,4 @@
 import { FigmaNode } from "./node";
-import { DocumentNodeData } from "../types";
+import type { DocumentNodeData } from "../types";
 
 export class DocumentNode extends FigmaNode<DocumentNodeData> {}

@@ -1,4 +1,4 @@
 import { FigmaNode } from "./node";
-import { SliceNodeData } from "../types";
+import type { SliceNodeData } from "../types";
 
 export class SliceNode extends FigmaNode<SliceNodeData> {}

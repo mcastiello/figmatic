@@ -1,12 +1,12 @@
 import {
-  Effect,
-  GenericNode,
-  GenericNodeData,
-  NodeDefinitionData,
-  NodesMap,
-  Paint,
-  TokenStyleTypes,
-  TypeStyle,
+  type Effect,
+  type GenericNode,
+  type GenericNodeData,
+  type NodeDefinitionData,
+  type NodesMap,
+  type Paint,
+  type TokenStyleTypes,
+  type TypeStyle,
   isNodeData,
   isStyledNode,
 } from "../types";
@@ -72,10 +72,6 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
     return this.parentId ? NodesCollection.get(this.parentId) : undefined;
   }
 
-  get definition() {
-    return this.data;
-  }
-
   get isGraphicNode() {
     return this.nodeType ? GRAPHIC_NODES.includes(this.nodeType) : false;
   }
@@ -95,9 +91,9 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get stiles(): Record<string, Paint | Effect | TypeStyle> {
-    if (isStyledNode(this.data)) {
-      const types: TokenStyleTypes[] = Object.keys(this.data.styles) as TokenStyleTypes[];
-      const values = { ...this.data };
+    const values = { ...this.data };
+    if (isStyledNode(values)) {
+      const types: TokenStyleTypes[] = Object.keys(values.styles) as TokenStyleTypes[];
 
       return types.reduce(
         (

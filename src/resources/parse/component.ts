@@ -1,8 +1,16 @@
-import { FigmaComponentData, GenericNodeData, NodeType, ParsedComponent } from "../../types";
-import { ComponentParsers, ExportPlugin } from "./plugin";
+import {
+  type ExportedComponent,
+  ExportFormat,
+  type FigmaComponentData,
+  type GenericNodeData,
+  type NodeType,
+  type ParsedComponent,
+} from "../../types";
+import type { ComponentParsers, ExportPlugin } from "./plugin";
 import { NodesCollection } from "../nodes-collection";
-import { FigmaNode } from "../../nodes";
-import { Parser } from "./parser";
+import type { FigmaNode } from "../../nodes";
+import type { Parser } from "./parser";
+import { Figmatic } from "../figmatic";
 
 export class FigmaComponent {
   protected readonly data: FigmaComponentData;
@@ -26,19 +34,39 @@ export class FigmaComponent {
     }
   }
 
-  private async parseNodes(nodes: FigmaNode[], parsers: Partial<ComponentParsers>): Promise<ParsedComponent[]> {
+  private async parseNodes(
+    nodes: FigmaNode[],
+    parsers: Partial<ComponentParsers>,
+    svg = false,
+  ): Promise<ParsedComponent[]> {
     const parsedComponents = await Promise.all(
       nodes.map(
         async <Type extends NodeType>(node: FigmaNode<GenericNodeData<Type>>): Promise<ParsedComponent | undefined> => {
           if (node) {
+            if (node.isGraphicNode && svg) {
+              const exports = await Figmatic.downloadGraphics([node], ExportFormat.SVG);
+              const markup = Object.values(exports).shift();
+              if (typeof markup === "string") {
+                return {
+                  styles: {
+                    name: node.name || "",
+                    rules: {},
+                  },
+                  markup: {
+                    tag: "svg",
+                    content: markup,
+                  },
+                };
+              }
+            }
             const parser: Parser<Type> | undefined = parsers[node.type as Type];
-            if (parser && node.definition) {
-              const data = await parser.parse(node.definition);
+            if (parser) {
+              const data = await parser.parse(node);
               const parsedChildren =
                 node.children && node.children.length > 0 ? await this.parseNodes(node.children, parsers) : [];
 
               return {
-                styles: data.styles,
+                styles: { ...data.styles, children: parsedChildren.map(({ styles }) => styles) },
                 markup: { ...data.markup, children: parsedChildren.map(({ markup }) => markup) },
                 code: [
                   ...(data.code || []),
@@ -53,10 +81,12 @@ export class FigmaComponent {
       ),
     );
 
-    return parsedComponents.filter((component): component is ParsedComponent => !component);
+    return parsedComponents.filter((component): component is ParsedComponent => !!component);
   }
 
-  async generateCode(config: ExportPlugin): Promise<string> {
-    const data = await this.parseNodes(this.variantNodes, config.parsers);
+  async generateCode(config: ExportPlugin): Promise<ExportedComponent> {
+    const data = await this.parseNodes(this.variantNodes, config.parsers, config.exportGraphicElementsAsSVG);
+
+    return await config.processor.generate(this.definition, data);
   }
 }

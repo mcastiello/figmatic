@@ -1,4 +1,4 @@
-import {
+import type {
   AxisAlign,
   AxisSizing,
   BlendMode,
@@ -17,7 +17,7 @@ import {
   StrokeJoin,
   TokenStyleTypes,
 } from "./enumerators";
-import {
+import type {
   Annotation,
   ArcData,
   Color,

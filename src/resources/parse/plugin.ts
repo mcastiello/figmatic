@@ -1,9 +1,9 @@
-import { NodeType } from "../../types";
-import { Parser } from "./parser";
-import { Processor } from "./processor";
+import type { NodesMap } from "../../types";
+import type { Parser } from "./parser";
+import type { Processor } from "./processor";
 
 export type ComponentParsers = {
-  [Type in NodeType]: Parser<Type>;
+  [Type in keyof NodesMap]: Parser<Type>;
 };
 
 export type ExportPlugin = {

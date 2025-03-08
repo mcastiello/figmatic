@@ -1,7 +1,7 @@
 import { NodeType } from "./enumerators";
-import { GenericNode, GenericNodeData, NodeDefinitionData, StyledNodeData } from "./nodes";
-import { NodesDataMap, NodesMap } from "./map";
-import { VariableAlias, VariableValue } from "./properties";
+import type { GenericNode, GenericNodeData, NodeDefinitionData, StyledNodeData } from "./nodes";
+import type { NodesDataMap, NodesMap } from "./map";
+import type { VariableAlias, VariableValue } from "./properties";
 
 export const isNodeType = (type: string): type is NodeType => Object.values<string>(NodeType).includes(type);
 export const isVariableAlias = (value: VariableValue | VariableAlias): value is VariableAlias =>
