@@ -11,7 +11,8 @@ import {
   isStyledNode,
 } from "../types";
 import { GRAPHIC_NODES, STYLE_PROPERTY_MAP } from "../types/internal";
-import { NodesCollection, TokensCollection } from "../resources";
+import { TokensCollection } from "../resources/tokens-collection";
+import { NodesCollection } from "../resources/nodes-collection";
 
 export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   protected readonly nodeId: string | undefined;

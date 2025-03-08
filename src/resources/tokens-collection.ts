@@ -1,57 +1,38 @@
 import {
   type Effect,
   type Paint,
-  type Style,
   type StyleData,
   type TypeStyle,
   type Variable,
   type VariableCollection,
   type VariableMode,
-  type VariablesFile,
   isVariableAlias,
 } from "../types";
 import { ColorValue } from "./parse";
+import { NodeStyles, NodeStylesCollection, NodeTokensCollections } from "./maps";
 
 class TokensCollectionMap extends Map<string, Variable> {
-  private collections: Map<string, VariableCollection> = new Map();
-  private styles: Map<string, TypeStyle | Paint | Effect> = new Map();
-  private stylesCollection: Map<string, Style> = new Map();
-
-  parse(variables: VariablesFile, styles: Record<string, Style> = {}) {
-    if (variables?.meta) {
-      Object.values(variables.meta.variables).forEach((variable) => {
-        this.set(variable.id, variable);
-      });
-      Object.values(variables.meta.variableCollections).forEach((collection) => {
-        this.collections.set(collection.id, collection);
-      });
-      Object.entries(styles).forEach(([key, style]) => {
-        this.stylesCollection.set(key, style);
-      });
-    }
-  }
-
   getByCollection(collectionId: string): Variable[] {
-    const collection = this.collections.get(collectionId);
+    const collection = NodeTokensCollections.get(collectionId);
 
     return collection?.variableIds?.map((id) => this.get(id)).filter((value): value is Variable => !!value) || [];
   }
 
   getCollection(collectionId: string): VariableCollection | undefined {
-    return this.collections.get(collectionId);
+    return NodeTokensCollections.get(collectionId);
   }
 
   getCollections(): VariableCollection[] {
-    return Array.from(this.collections.values());
+    return Array.from(NodeTokensCollections.values());
   }
 
   setStyle(id: string, style: TypeStyle | Paint | Effect) {
-    this.styles.set(id, style);
+    NodeStyles.set(id, style);
   }
 
   getStyle(id: string): StyleData | undefined {
-    const style = this.stylesCollection.get(id);
-    const data = this.styles.get(id);
+    const style = NodeStylesCollection.get(id);
+    const data = NodeStyles.get(id);
 
     if (style && data) {
       return {
@@ -63,7 +44,7 @@ class TokensCollectionMap extends Map<string, Variable> {
   }
 
   getStyles(): StyleData[] {
-    return Array.from(this.stylesCollection.keys())
+    return Array.from(NodeStylesCollection.keys())
       .map((id) => this.getStyle(id))
       .filter((data): data is StyleData => !!data);
   }
@@ -113,8 +94,9 @@ class TokensCollectionMap extends Map<string, Variable> {
 
   clear() {
     super.clear();
-    this.collections.clear();
-    this.styles.clear();
+    NodeTokensCollections.clear();
+    NodeStylesCollection.clear();
+    NodeStyles.clear();
   }
 }
 

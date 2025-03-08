@@ -1,6 +1,6 @@
 {
   "name": "@mcastiello/figmatic",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Marco Castiello <marco.castiello@gmail.com>",
   "license": "MIT",
   "source": "src/index.ts",
@@ -76,7 +76,10 @@
       "/dist"
     ],
     "transform": {
-      "^.+\\.ts?$": "ts-jest"
+      "^.+\\.ts?$": [
+        "ts-jest",
+        { "useESM": true, "isolatedModules": true }
+      ]
     },
     "testRegex": "src/.*\\.(test|spec)?\\.(ts)$",
     "moduleFileExtensions": [
