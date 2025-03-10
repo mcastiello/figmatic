@@ -1,26 +1,19 @@
-import { EventBus } from "@mcastiello/event-bus";
 import type { EventOf, SubscriptionConfig, SubscriptionOf } from "@mcastiello/event-bus";
 import { ExportFormat, type FigmaFile, FigmaticEvents, FigmaticSeverity, NodeType, type VariablesFile } from "../types";
 import { NodesCollection } from "./nodes-collection";
 import { ComponentsCollection } from "./components-collection";
 import { TokensCollection } from "./tokens-collection";
-import { CollectionParser } from "./parser";
-import { FigmaApi } from "./api";
-import { Channels, FigmaticBusConfig, type FigmaticBusDefinition } from "../types/events";
+import { CollectionParser, FigmaApi, Logger } from "./utilities";
+import { Channels, type FigmaticBusDefinition } from "../types/events";
 import type { FigmaNode } from "../nodes";
 
 class FigmaLoader {
   private file: string | undefined;
   private branch: string | undefined;
   private pageFilters: (string | RegExp)[] | undefined;
-  private bus: EventBus<FigmaticBusDefinition> = new EventBus(FigmaticBusConfig);
 
   private data: Map<string, FigmaFile> = new Map();
   private variables: Map<string, VariablesFile> = new Map();
-
-  private get channel() {
-    return this.bus.getChannel(Channels.Figmatic);
-  }
 
   private getDuration(start: number, end: number): string {
     const duration = end - start;
@@ -42,7 +35,7 @@ class FigmaLoader {
     subscription: SubscriptionOf<FigmaticBusDefinition, Channels.Figmatic, Event>,
     options?: SubscriptionConfig,
   ) {
-    return this.channel.subscribe(event, subscription, options);
+    return Logger.channel.subscribe(event, subscription, options);
   }
 
   async load(file: string, token: string, pageFilters?: (string | RegExp)[]): Promise<void> {
@@ -54,12 +47,8 @@ class FigmaLoader {
 
     const start = Date.now();
 
-    this.channel.publish(FigmaticEvents.LoadStarted);
-    this.channel.publish(FigmaticEvents.Message, {
-      message: `Load Figma file "${file}" started`,
-      severity: FigmaticSeverity.Info,
-      timestamp: start,
-    });
+    Logger.channel.publish(FigmaticEvents.LoadStarted);
+    Logger.log(`Load Figma file "${file}" started`, FigmaticSeverity.Info, start);
 
     if (!this.data.get(file)) {
       await this.downloadSelectedBranch();
@@ -69,12 +58,8 @@ class FigmaLoader {
 
     const end = Date.now();
 
-    this.channel.publish(FigmaticEvents.LoadCompleted);
-    this.channel.publish(FigmaticEvents.Message, {
-      message: `Loading completed:\n\t- Duration: ${this.getDuration(start, end)}`,
-      severity: FigmaticSeverity.Info,
-      timestamp: end,
-    });
+    Logger.channel.publish(FigmaticEvents.LoadCompleted);
+    Logger.log(`Loading completed:\n\t- Duration: ${this.getDuration(start, end)}`, FigmaticSeverity.Info, end);
   }
 
   get selectedBranch() {
@@ -83,44 +68,27 @@ class FigmaLoader {
 
   private async downloadBranch(fileName: string): Promise<void> {
     try {
-      this.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });
-      this.channel.publish(FigmaticEvents.Message, {
-        message: `Download of branch "${fileName}" started`,
-        severity: FigmaticSeverity.Debug,
-        timestamp: Date.now(),
-      });
+      Logger.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });
+      Logger.log(`Download of branch "${fileName}" started`, FigmaticSeverity.Debug);
 
       const data = await FigmaApi.getFigmaFile(fileName);
 
       if (data) {
         this.data.set(fileName, data);
 
-        this.channel.publish(FigmaticEvents.BranchDownloadCompleted, { branch: fileName });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of branch "${fileName}" completed`,
-          severity: FigmaticSeverity.Debug,
-          timestamp: Date.now(),
-        });
+        Logger.channel.publish(FigmaticEvents.BranchDownloadCompleted, { branch: fileName });
+        Logger.log(`Download of branch "${fileName}" completed`, FigmaticSeverity.Debug);
       } else {
         throw new Error("File not downloaded");
       }
     } catch (error) {
-      this.channel.publish(FigmaticEvents.BranchDownloadFailed, error as Error);
-      this.channel.publish(FigmaticEvents.Message, {
-        message: `Download of branch "${fileName}" failed`,
-        severity: FigmaticSeverity.Error,
-        timestamp: Date.now(),
-        data: { error },
-      });
+      Logger.channel.publish(FigmaticEvents.BranchDownloadFailed, error as Error);
+      Logger.log(`Download of branch "${fileName}" failed`, FigmaticSeverity.Error, Date.now(), { error });
     }
 
     try {
-      this.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
-      this.channel.publish(FigmaticEvents.Message, {
-        message: `Download of tokens for "${fileName}" started`,
-        severity: FigmaticSeverity.Debug,
-        timestamp: Date.now(),
-      });
+      Logger.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
+      Logger.log(`Download of tokens for "${fileName}" started`, FigmaticSeverity.Debug);
 
       const localVariables = await FigmaApi.getLocalVariables(fileName);
 
@@ -138,20 +106,11 @@ class FigmaLoader {
         });
       }
 
-      this.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
-      this.channel.publish(FigmaticEvents.Message, {
-        message: `Download of tokens for branch "${fileName}" completed`,
-        severity: FigmaticSeverity.Debug,
-        timestamp: Date.now(),
-      });
+      Logger.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
+      Logger.log(`Download of tokens for branch "${fileName}" completed`, FigmaticSeverity.Debug);
     } catch (error) {
-      this.channel.publish(FigmaticEvents.TokensDownloadFailed, error as Error);
-      this.channel.publish(FigmaticEvents.Message, {
-        message: `Download of tokens for branch "${fileName}" failed`,
-        severity: FigmaticSeverity.Error,
-        timestamp: Date.now(),
-        data: { error },
-      });
+      Logger.channel.publish(FigmaticEvents.TokensDownloadFailed, error as Error);
+      Logger.log(`Download of tokens for branch "${fileName}" failed`, FigmaticSeverity.Error, Date.now(), { error });
     }
   }
 
@@ -169,86 +128,72 @@ class FigmaLoader {
       if (data) {
         try {
           const start = Date.now();
-          this.channel.publish(FigmaticEvents.ParseNodesStarted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of nodes for "${this.selectedBranch}" started`,
-            severity: FigmaticSeverity.Debug,
-            timestamp: start,
-            data: { filters: this.pageFilters },
+          Logger.channel.publish(FigmaticEvents.ParseNodesStarted);
+          Logger.log(`Parsing of nodes for "${this.selectedBranch}" started`, FigmaticSeverity.Debug, start, {
+            filters: this.pageFilters,
           });
 
           CollectionParser.parseNodes(data.document, this.pageFilters);
 
           const end = Date.now();
-          this.channel.publish(FigmaticEvents.ParseNodesCompleted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of nodes for "${this.selectedBranch}" completed:\n\t- Total nodes: ${NodesCollection.size}\n\t- Pages: ${NodesCollection.getByType(NodeType.Canvas).length}\n\t- Duration: ${this.getDuration(start, end)}`,
-            severity: FigmaticSeverity.Info,
-            timestamp: end,
-            data: { filters: this.pageFilters },
-          });
+          Logger.channel.publish(FigmaticEvents.ParseNodesCompleted);
+          Logger.log(
+            `Parsing of nodes for "${this.selectedBranch}" completed:\n\t- Total nodes: ${NodesCollection.size}\n\t- Pages: ${NodesCollection.getByType(NodeType.Canvas).length}\n\t- Duration: ${this.getDuration(start, end)}`,
+            FigmaticSeverity.Info,
+            end,
+            { filters: this.pageFilters },
+          );
         } catch (error) {
-          this.channel.publish(FigmaticEvents.ParseNodesFailed, error as Error);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of nodes for branch "${this.selectedBranch}" failed`,
-            severity: FigmaticSeverity.Error,
-            timestamp: Date.now(),
-            data: { error },
-          });
+          Logger.channel.publish(FigmaticEvents.ParseNodesFailed, error as Error);
+          Logger.log(
+            `Parsing of nodes for branch "${this.selectedBranch}" failed`,
+            FigmaticSeverity.Error,
+            Date.now(),
+            { error },
+          );
         }
 
         try {
-          this.channel.publish(FigmaticEvents.ParseComponentsStarted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of components for "${this.selectedBranch}" started`,
-            severity: FigmaticSeverity.Debug,
-            timestamp: Date.now(),
-          });
+          Logger.channel.publish(FigmaticEvents.ParseComponentsStarted);
+          Logger.log(`Parsing of components for "${this.selectedBranch}" started`, FigmaticSeverity.Debug);
 
           CollectionParser.parseComponents(this.selectedBranch, data.componentSets, data.components);
 
-          this.channel.publish(FigmaticEvents.ParseComponentsCompleted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of components for "${this.selectedBranch}" completed:\n\t- Total components: ${ComponentsCollection.size}`,
-            severity: FigmaticSeverity.Info,
-            timestamp: Date.now(),
-          });
+          Logger.channel.publish(FigmaticEvents.ParseComponentsCompleted);
+          Logger.log(
+            `Parsing of components for "${this.selectedBranch}" completed:\n\t- Total components: ${ComponentsCollection.size}`,
+          );
         } catch (error) {
-          this.channel.publish(FigmaticEvents.ParseComponentsFailed, error as Error);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of components for branch "${this.selectedBranch}" failed`,
-            severity: FigmaticSeverity.Error,
-            timestamp: Date.now(),
-            data: { error },
-          });
+          Logger.channel.publish(FigmaticEvents.ParseComponentsFailed, error as Error);
+          Logger.log(
+            `Parsing of components for branch "${this.selectedBranch}" failed`,
+            FigmaticSeverity.Error,
+            Date.now(),
+            { error },
+          );
         }
 
         try {
-          this.channel.publish(FigmaticEvents.ParseTokensStarted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of tokens for "${this.selectedBranch}" started`,
-            severity: FigmaticSeverity.Debug,
-            timestamp: Date.now(),
-          });
+          Logger.channel.publish(FigmaticEvents.ParseTokensStarted);
+          Logger.log(`Parsing of tokens for "${this.selectedBranch}" started`, FigmaticSeverity.Debug);
 
           if (variables) {
             CollectionParser.parseTokens(variables, data.styles);
           }
 
-          this.channel.publish(FigmaticEvents.ParseTokensCompleted);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of tokens for "${this.selectedBranch}" completed:\n\t- Total tokens: ${TokensCollection.size}\n\t- Collections: ${TokensCollection.getCollections().length}\n\t- Styles: ${TokensCollection.getStyles().length}`,
-            severity: FigmaticSeverity.Info,
-            timestamp: Date.now(),
-          });
+          Logger.channel.publish(FigmaticEvents.ParseTokensCompleted);
+          Logger.log(
+            `Parsing of tokens for "${this.selectedBranch}" completed:\n\t- Total tokens: ${TokensCollection.size}\n\t- Collections: ${TokensCollection.getCollections().length}\n\t- Styles: ${TokensCollection.getStyles().length}`,
+            FigmaticSeverity.Info,
+          );
         } catch (error) {
-          this.channel.publish(FigmaticEvents.ParseTokensFailed, error as Error);
-          this.channel.publish(FigmaticEvents.Message, {
-            message: `Parsing of tokens for branch "${this.selectedBranch}" failed`,
-            severity: FigmaticSeverity.Error,
-            timestamp: Date.now(),
-            data: { error },
-          });
+          Logger.channel.publish(FigmaticEvents.ParseTokensFailed, error as Error);
+          Logger.log(
+            `Parsing of tokens for branch "${this.selectedBranch}" failed`,
+            FigmaticSeverity.Error,
+            Date.now(),
+            { error },
+          );
         }
       }
     }
@@ -269,41 +214,32 @@ class FigmaLoader {
       try {
         const start = Date.now();
         const nodeNames = nodes.map(({ name, id }) => name || id).filter((value): value is string => !!value);
-        this.channel.publish(FigmaticEvents.GraphicDownloadStarted, {
+        Logger.channel.publish(FigmaticEvents.GraphicDownloadStarted, {
           nodes: nodeNames,
           format,
           scale,
         });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of graphic elements started`,
-          severity: FigmaticSeverity.Info,
-          timestamp: start,
-        });
+        Logger.log(`Download of graphic elements started`, FigmaticSeverity.Info, start);
         const nodeIds = nodes.map((node) => node.id).filter((id): id is string => !!id);
 
         const images = await FigmaApi.downloadGraphicNodes(this.selectedBranch, nodeIds, format, scale);
 
         const end = Date.now();
-        this.channel.publish(FigmaticEvents.GraphicDownloadCompleted, {
+        Logger.channel.publish(FigmaticEvents.GraphicDownloadCompleted, {
           nodes: nodeNames,
           format,
           scale,
         });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of graphic elements completed:\n\t- Total downloads: ${Object.keys(images).length}\n\t- Duration: ${this.getDuration(start, end)}`,
-          severity: FigmaticSeverity.Info,
-          timestamp: start,
-        });
+        Logger.log(
+          `Download of graphic elements completed:\n\t- Total downloads: ${Object.keys(images).length}\n\t- Duration: ${this.getDuration(start, end)}`,
+          FigmaticSeverity.Info,
+          start,
+        );
 
         return images;
       } catch (error) {
-        this.channel.publish(FigmaticEvents.GraphicDownloadFailed, error as Error);
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Download of graphic elements failed`,
-          severity: FigmaticSeverity.Error,
-          timestamp: Date.now(),
-          data: { error },
-        });
+        Logger.channel.publish(FigmaticEvents.GraphicDownloadFailed, error as Error);
+        Logger.log(`Download of graphic elements failed`, FigmaticSeverity.Error, Date.now(), { error });
       }
     }
     return {};
@@ -323,12 +259,8 @@ class FigmaLoader {
 
       if (this.selectedBranch && !this.data.get(this.selectedBranch)) {
         const start = Date.now();
-        this.channel.publish(FigmaticEvents.SwitchBranchStarted, { branch: this.selectedBranch });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Switch to branch "${this.selectedBranch}" started`,
-          severity: FigmaticSeverity.Info,
-          timestamp: start,
-        });
+        Logger.channel.publish(FigmaticEvents.SwitchBranchStarted, { branch: this.selectedBranch });
+        Logger.log(`Switch to branch "${this.selectedBranch}" started`, FigmaticSeverity.Info, start);
 
         await this.downloadSelectedBranch();
 
@@ -336,12 +268,12 @@ class FigmaLoader {
 
         const end = Date.now();
 
-        this.channel.publish(FigmaticEvents.SwitchBranchCompleted, { branch: this.selectedBranch });
-        this.channel.publish(FigmaticEvents.Message, {
-          message: `Switch to branch "${this.selectedBranch}" completed:  ${this.getDuration(start, end)}`,
-          severity: FigmaticSeverity.Info,
-          timestamp: end,
-        });
+        Logger.channel.publish(FigmaticEvents.SwitchBranchCompleted, { branch: this.selectedBranch });
+        Logger.log(
+          `Switch to branch "${this.selectedBranch}" completed:  ${this.getDuration(start, end)}`,
+          FigmaticSeverity.Info,
+          end,
+        );
       }
     }
   }

@@ -1,5 +1,7 @@
 import { FigmaComponent } from "./parse/component";
 import type { ExportPlugin } from "./parse";
+import { Logger } from "./utilities";
+import { FigmaticSeverity } from "../types";
 
 class ComponentsCollectionMap extends Map<string, FigmaComponent> {
   private plugins: Map<string, ExportPlugin> = new Map();
@@ -14,8 +16,18 @@ class ComponentsCollectionMap extends Map<string, FigmaComponent> {
 
     if (plugin) {
       for (const component of this.values()) {
-        const exported = await component.generateCode(plugin);
-        result[exported.name] = exported.name;
+        try {
+          Logger.log(`Export component "${component.definition.name}"`, FigmaticSeverity.Debug);
+          const exported = await component.generateCode(plugin);
+          result[exported.name] = exported.name;
+        } catch (error) {
+          Logger.log(
+            `Error while exporting component "${component.definition.name}"`,
+            FigmaticSeverity.Error,
+            Date.now(),
+            { error },
+          );
+        }
       }
     }
 

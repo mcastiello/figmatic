@@ -1,6 +1,6 @@
-import type { ExportFile, FigmaFile, VariablesFile } from "../types";
-import { ExportFormat } from "../types";
-import { GRAPHIC_RESPONSE_TYPES } from "../types/constants";
+import { type ExportFile, ExportFormat, type FigmaFile, FigmaticSeverity, type VariablesFile } from "../../types";
+import { GRAPHIC_RESPONSE_TYPES } from "../../types/constants";
+import { Logger } from "./log";
 
 const FIGMA_ENDPOINT = "https://api.figma.com/v1";
 
@@ -81,6 +81,7 @@ class Api {
       const images: Record<string, string | ArrayBuffer> = {};
 
       for (const [id, url] of Object.entries(imageLinks.images)) {
+        Logger.log(`Download of file ${url}`, FigmaticSeverity.Debug);
         if (url) {
           const image = await fetch(url, {
             method: "GET",

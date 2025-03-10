@@ -1,4 +1,4 @@
-import type { Effect, Paint, Style, TypeStyle, VariableCollection } from "../types";
+import type { Effect, Paint, Style, TypeStyle, VariableCollection } from "../../types";
 
 export const NodeNameMap: Map<string, string[]> = new Map();
 export const NodeTokensCollections: Map<string, VariableCollection> = new Map();

@@ -9,7 +9,7 @@ import {
   isVariableAlias,
 } from "../types";
 import { ColorValue } from "./parse";
-import { NodeStyles, NodeStylesCollection, NodeTokensCollections } from "./maps";
+import { NodeStyles, NodeStylesCollection, NodeTokensCollections } from "./utilities";
 
 class TokensCollectionMap extends Map<string, Variable> {
   getByCollection(collectionId: string): Variable[] {
