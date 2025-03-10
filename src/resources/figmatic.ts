@@ -3,7 +3,9 @@ import { ExportFormat, type FigmaFile, FigmaticEvents, FigmaticSeverity, NodeTyp
 import { NodesCollection } from "./nodes-collection";
 import { ComponentsCollection } from "./components-collection";
 import { TokensCollection } from "./tokens-collection";
-import { CollectionParser, FigmaApi, Logger } from "./utilities";
+import { CollectionParser } from "./utilities/parser";
+import { FigmaApi } from "./utilities/api";
+import { Logger } from "./utilities/log";
 import { Channels, type FigmaticBusDefinition } from "../types/events";
 import type { FigmaNode } from "../nodes";
 

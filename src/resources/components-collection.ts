@@ -1,6 +1,6 @@
 import { FigmaComponent } from "./parse/component";
 import type { ExportPlugin } from "./parse";
-import { Logger } from "./utilities";
+import { Logger } from "./utilities/log";
 import { FigmaticSeverity } from "../types";
 
 class ComponentsCollectionMap extends Map<string, FigmaComponent> {

@@ -9,7 +9,8 @@ import {
 } from "../../types";
 import type { ComponentParsers, ExportPlugin } from "./plugin";
 import { NodesCollection } from "../nodes-collection";
-import { FigmaApi, Logger } from "../utilities";
+import { FigmaApi } from "../utilities/api";
+import { Logger } from "../utilities/log";
 import type { FigmaNode } from "../../nodes";
 import type { Parser } from "./parser";
 

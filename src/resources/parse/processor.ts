@@ -1,5 +1,5 @@
 import { type ExportedComponent, type FigmaComponentData, FigmaticSeverity, type ParsedComponent } from "../../types";
-import { Logger } from "../utilities";
+import { Logger } from "../utilities/log";
 
 export abstract class Processor {
   abstract generate(definition: FigmaComponentData, parsedComponents: ParsedComponent[]): Promise<ExportedComponent>;

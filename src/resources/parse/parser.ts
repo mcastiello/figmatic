@@ -1,6 +1,6 @@
 import { FigmaticSeverity, type GenericNodeData, type NodeType, type ParsedComponent } from "../../types";
 import type { FigmaNode } from "../../nodes";
-import { Logger } from "../utilities";
+import { Logger } from "../utilities/log";
 
 export abstract class Parser<Type extends NodeType> {
   abstract parse<Node extends FigmaNode<GenericNodeData<Type>>>(node: Node): Promise<ParsedComponent>;

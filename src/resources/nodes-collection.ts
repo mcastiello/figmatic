@@ -1,6 +1,6 @@
 import { type NodesMap, isTypedNode } from "../types";
 import type { FigmaNode } from "../nodes";
-import { NodeNameMap } from "./utilities";
+import { NodeNameMap } from "./utilities/maps";
 
 class NodesCollectionMap extends Map<string, FigmaNode> {
   getByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
