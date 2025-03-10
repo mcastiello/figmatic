@@ -2,15 +2,17 @@ import {
   type ExportedComponent,
   ExportFormat,
   type FigmaComponentData,
+  FigmaticSeverity,
   type GenericNodeData,
   type NodeType,
   type ParsedComponent,
 } from "../../types";
 import type { ComponentParsers, ExportPlugin } from "./plugin";
 import { NodesCollection } from "../nodes-collection";
+import { FigmaApi } from "../utilities/api";
+import { Logger } from "../utilities/log";
 import type { FigmaNode } from "../../nodes";
 import type { Parser } from "./parser";
-import { FigmaApi } from "../api";
 
 export class FigmaComponent {
   protected readonly data: FigmaComponentData;
@@ -44,19 +46,28 @@ export class FigmaComponent {
         async <Type extends NodeType>(node: FigmaNode<GenericNodeData<Type>>): Promise<ParsedComponent | undefined> => {
           if (node) {
             if (node.id && node.isGraphicNode && svg) {
-              const exports = await FigmaApi.downloadGraphicNodes(this.data.fileName, [node.id], ExportFormat.SVG);
-              const markup = Object.values(exports).shift();
-              if (typeof markup === "string") {
-                return {
-                  styles: {
-                    name: node.name || "",
-                    rules: {},
-                  },
-                  markup: {
-                    tag: "svg",
-                    content: markup,
-                  },
-                };
+              try {
+                const exports = await FigmaApi.downloadGraphicNodes(this.data.fileName, [node.id], ExportFormat.SVG);
+                const markup = Object.values(exports).shift();
+                if (typeof markup === "string") {
+                  return {
+                    styles: {
+                      name: node.name || "",
+                      rules: {},
+                    },
+                    markup: {
+                      tag: "svg",
+                      content: markup,
+                    },
+                  };
+                }
+              } catch (error) {
+                Logger.log(
+                  `Failed to download graphic node "${node.id}": ${node.name}`,
+                  FigmaticSeverity.Error,
+                  Date.now(),
+                  { error },
+                );
               }
             }
             const parser: Parser<Type> | undefined = parsers[node.type as Type];

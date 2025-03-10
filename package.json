@@ -1,6 +1,6 @@
 {
   "name": "@mcastiello/figmatic",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Marco Castiello <marco.castiello@gmail.com>",
   "license": "MIT",
   "source": "src/index.ts",
@@ -13,7 +13,8 @@
     "type": "git"
   },
   "files": [
-    "./dist"
+    "./dist",
+    "!./dist/resources/utilities"
   ],
   "typesVersions": {
     "*": {

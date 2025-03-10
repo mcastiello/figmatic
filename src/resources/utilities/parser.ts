@@ -1,8 +1,8 @@
-import type { Component, FigmaComponentData, FigmaComponentVariant, Style, VariablesFile } from "../types";
-import { FigmaComponent } from "./parse/component";
-import { ComponentsCollection } from "./components-collection";
-import type { FigmaNode } from "../nodes";
-import { isNodeData, isTypedNodeData, NodeType } from "../types";
+import type { Component, FigmaComponentData, FigmaComponentVariant, Style, VariablesFile } from "../../types";
+import { FigmaComponent } from "../parse/component";
+import { ComponentsCollection } from "./../components-collection";
+import type { FigmaNode } from "../../nodes";
+import { isNodeData, isTypedNodeData, NodeType } from "../../types";
 import {
   BooleanOperationNode,
   CanvasNode,
@@ -21,9 +21,9 @@ import {
   TextNode,
   VectorNode,
   WashiTapeNode,
-} from "../nodes";
-import { TokensCollection } from "./tokens-collection";
-import { NodesCollection } from "./nodes-collection";
+} from "../../nodes";
+import { TokensCollection } from "../tokens-collection";
+import { NodesCollection } from "../nodes-collection";
 import { NodeNameMap, NodeStylesCollection, NodeTokensCollections } from "./maps";
 
 class Parser {
