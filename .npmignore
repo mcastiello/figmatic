@@ -1,0 +1,12 @@
+.github/
+.idea/
+src/
+dist/resources/utilities/
+dist/types/constants.d.ts
+dist/types/internal.d.ts
+.eslintrc
+.gitignore
+.prettierrc
+jest.setup.js
+tsconfig.build.json
+yarn.lock
