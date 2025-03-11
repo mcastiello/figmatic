@@ -61,7 +61,7 @@ class Api {
   }
 
   calculateTotalSize(images: (string | ArrayBuffer)[]): string {
-    return `${images.reduce((total, image) => total + this.calculateSize(image), 0).toPrecision(2)}Kb`;
+    return `${images.reduce((total, image) => total + this.calculateSize(image), 0).toFixed(2)}Kb`;
   }
 
   async downloadGraphicNodes(
