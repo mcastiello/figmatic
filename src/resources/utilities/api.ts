@@ -56,6 +56,14 @@ class Api {
     }
   }
 
+  calculateSize(image: string | ArrayBuffer): number {
+    return image instanceof ArrayBuffer ? image.byteLength : image.length;
+  }
+
+  calculateTotalSize(image: (string | ArrayBuffer)[]): string {
+    return `${image.reduce((total, image) => total + this.calculateSize(image), 0).toPrecision(2)}Kb`;
+  }
+
   async downloadGraphicNodes(
     fileName: string,
     nodeIds: string[],
@@ -78,7 +86,6 @@ class Api {
       );
 
       const imageLinks: ExportFile = await response.json();
-      const images: Record<string, string | ArrayBuffer> = {};
 
       for (const [id, url] of Object.entries(imageLinks.images)) {
         Logger.log(`Download of file ${url}`, FigmaticSeverity.Debug);
@@ -92,10 +99,7 @@ class Api {
           });
 
           images[id] = format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer();
-          Logger.log(
-            `Download completed: ${((images[id] instanceof ArrayBuffer ? images[id].byteLength : images[id].length) / 1024).toPrecision(2)}Kb`,
-            FigmaticSeverity.Debug,
-          );
+          Logger.log(`Download completed: ${this.calculateTotalSize([images[id]])}`, FigmaticSeverity.Debug);
         }
       }
     }
