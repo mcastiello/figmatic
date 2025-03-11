@@ -233,7 +233,7 @@ class FigmaLoader {
           scale,
         });
         Logger.log(
-          `Download of graphic elements completed:\n\t- Total downloads: ${Object.keys(images).length}\n\t- Duration: ${this.getDuration(start, end)}`,
+          `Download of graphic elements completed:\n\t- Total downloads: ${Object.keys(images).length}\n\t- Duration: ${this.getDuration(start, end)}\n\t- Total Size: ${FigmaApi.calculateTotalSize(Object.values(images))}`,
           FigmaticSeverity.Info,
           start,
         );
