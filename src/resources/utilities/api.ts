@@ -57,11 +57,11 @@ class Api {
   }
 
   calculateSize(image: string | ArrayBuffer): number {
-    return image instanceof ArrayBuffer ? image.byteLength : image.length;
+    return (image instanceof ArrayBuffer ? image.byteLength : image.length) / 1024;
   }
 
-  calculateTotalSize(image: (string | ArrayBuffer)[]): string {
-    return `${image.reduce((total, image) => total + this.calculateSize(image), 0).toPrecision(2)}Kb`;
+  calculateTotalSize(images: (string | ArrayBuffer)[]): string {
+    return `${images.reduce((total, image) => total + this.calculateSize(image), 0).toPrecision(2)}Kb`;
   }
 
   async downloadGraphicNodes(
