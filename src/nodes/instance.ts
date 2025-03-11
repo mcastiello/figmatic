@@ -55,13 +55,15 @@ export class InstanceNode extends FigmaNode<InstanceNodeData> {
   }
 
   constructor(data: Record<string, unknown>, parentId?: string) {
+    let childrenList: string[] = [];
     if (isNodeData<GenericNode<NodeType.Instance>>(data)) {
       const { children, ...instanceData } = data;
-      super(instanceData, parentId);
+      data = instanceData;
 
-      this.overrideIds = children?.map(({ id }) => id);
+      childrenList = children?.map(({ id }) => id) || [];
     }
     super(data, parentId);
+    this.overrideIds = childrenList;
   }
 
   get overrides() {
