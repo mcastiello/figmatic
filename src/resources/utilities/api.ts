@@ -90,12 +90,12 @@ class Api {
               "Accept-Charset": "UTF-8",
             },
           });
-          Logger.log(
-            `Download completed: ${((await image.bytes()).length / 1024).toPrecision(2)}Kb`,
-            FigmaticSeverity.Debug,
-          );
 
           images[id] = format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer();
+          Logger.log(
+            `Download completed: ${((images[id] instanceof ArrayBuffer ? images[id].byteLength : images[id].length) / 1024).toPrecision(2)}Kb`,
+            FigmaticSeverity.Debug,
+          );
         }
       }
     }
