@@ -74,7 +74,7 @@ class Api {
 
     if (this.token) {
       const response = await fetch(
-        `${FIGMA_ENDPOINT}/images/${fileName}?ids=${nodeIds}&scale=${scale}&format=${format}&svg_simplify_stroke=false`,
+        `${FIGMA_ENDPOINT}/images/${fileName}?ids=${nodeIds}&scale=${scale}&format=${format}`,
         {
           method: "GET",
           headers: {
