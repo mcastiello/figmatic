@@ -9,6 +9,7 @@ import {
   type TypeStyle,
   isNodeData,
   isStyledNode,
+  NodeType,
 } from "../types";
 import { GRAPHIC_NODES, STYLE_PROPERTY_MAP } from "../types/internal";
 import { TokensCollection } from "../resources/tokens-collection";
@@ -23,7 +24,6 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
 
   get DefaultValues(): NodeDefinitionData<DataType> {
     return {
-      boundVariables: {},
       componentPropertyReferences: {},
       explicitVariableModes: {},
       rotation: 0,
@@ -64,9 +64,11 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get children() {
-    return this.childrenIds
-      ?.map((id) => NodesCollection.get(id))
-      .filter((node): node is FigmaNode => !!node && node.valid);
+    return (
+      this.childrenIds
+        ?.map((id) => NodesCollection.get(id))
+        .filter((node): node is FigmaNode => !!node && node.valid) || []
+    );
   }
 
   get parent(): FigmaNode | undefined {
@@ -74,10 +76,10 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get isGraphicNode() {
-    return this.nodeType ? GRAPHIC_NODES.includes(this.nodeType) : false;
+    return GRAPHIC_NODES.includes(this.nodeType as NodeType);
   }
 
-  getToken(type: TokenStyleTypes) {
+  getTokens(type: TokenStyleTypes) {
     if (this.data?.boundVariables) {
       const token = this.data.boundVariables[type];
       const list = Array.isArray(token) ? token : token ? [token] : [];
@@ -87,11 +89,15 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
     return [];
   }
 
-  getChildrenByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
-    return NodesCollection.getByType(type).filter((node) => node.parent?.id === this.id);
+  isDescendant(id?: string): boolean {
+    return !!id && !!this.parent && (this.parent.id === id || this.parent.isDescendant(id));
   }
 
-  get stiles(): Record<string, Paint | Effect | TypeStyle> {
+  getNodesByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
+    return NodesCollection.getByType(type).filter((node) => node.isDescendant(this.id));
+  }
+
+  get styles(): Record<string, Paint | Effect | TypeStyle> {
     const values = { ...this.data };
     if (isStyledNode(values)) {
       const types: TokenStyleTypes[] = Object.keys(values.styles) as TokenStyleTypes[];

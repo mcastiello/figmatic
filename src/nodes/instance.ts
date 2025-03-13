@@ -71,4 +71,8 @@ export class InstanceNode extends FigmaNode<InstanceNodeData> {
       ?.map((id) => NodesCollection.get(id))
       .filter((node): node is FigmaNode => !!node && node.valid);
   }
+
+  get component() {
+    return this.data?.componentId ? NodesCollection.get(this.data.componentId) : undefined;
+  }
 }
