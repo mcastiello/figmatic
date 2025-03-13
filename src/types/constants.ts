@@ -7,8 +7,10 @@ export const GRAPHIC_NODES: NodeType[] = [
   NodeType.Line,
   NodeType.Rectangle,
   NodeType.RegularPolygon,
+  NodeType.Slice,
   NodeType.Star,
   NodeType.Vector,
+  NodeType.WashiTape,
 ];
 
 export const GRAPHIC_RESPONSE_TYPES: Record<ExportFormat, string> = {

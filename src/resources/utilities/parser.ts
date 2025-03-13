@@ -1,6 +1,5 @@
 import type { Component, FigmaComponentData, FigmaComponentVariant, Style, VariablesFile } from "../../types";
 import { FigmaComponent } from "../parse/component";
-import { ComponentsCollection } from "./../components-collection";
 import type { FigmaNode } from "../../nodes";
 import { isNodeData, isTypedNodeData, NodeType } from "../../types";
 import {
@@ -24,6 +23,7 @@ import {
 } from "../../nodes";
 import { TokensCollection } from "../tokens-collection";
 import { NodesCollection } from "../nodes-collection";
+import { ComponentsCollection } from "../components-collection";
 import { NodeNameMap, NodeStylesCollection, NodeTokensCollections } from "./maps";
 
 class Parser {
@@ -141,7 +141,7 @@ class Parser {
         NodeNameMap.set(node.name, [...collection, nodeId]);
       }
 
-      Object.entries(node.stiles).map(([styleId, style]) => {
+      Object.entries(node.styles).map(([styleId, style]) => {
         TokensCollection.setStyle(styleId, style);
       });
 

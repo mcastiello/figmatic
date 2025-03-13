@@ -1,6 +1,6 @@
 import { type NodesMap, isTypedNode } from "../types";
-import type { FigmaNode } from "../nodes";
 import { NodeNameMap } from "./utilities/maps";
+import type { FigmaNode } from "../nodes";
 
 class NodesCollectionMap extends Map<string, FigmaNode> {
   getByType<Type extends keyof NodesMap>(type: Type): NodesMap[Type][] {
@@ -32,6 +32,10 @@ class NodesCollectionMap extends Map<string, FigmaNode> {
   clear() {
     super.clear();
     NodeNameMap.clear();
+  }
+
+  get<Node extends FigmaNode = FigmaNode>(id: string): Node | undefined {
+    return super.get(id) as Node | undefined;
   }
 }
 
