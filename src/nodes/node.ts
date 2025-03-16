@@ -77,7 +77,10 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get isGraphicNode() {
-    return GRAPHIC_NODES.includes(this.nodeType as NodeType) || isExportableNode(this.data);
+    return (
+      GRAPHIC_NODES.includes(this.nodeType as NodeType) ||
+      (isExportableNode(this.data) && this.data.exportSettings?.length > 0)
+    );
   }
 
   getTokens(type: TokenStyleTypes) {
