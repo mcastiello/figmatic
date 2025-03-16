@@ -1,18 +1,6 @@
-import {
-  type ExportedComponent,
-  ExportFormat,
-  type FigmaComponentData,
-  FigmaticSeverity,
-  type GenericNodeData,
-  type NodeType,
-  type ParsedComponent,
-} from "../../types";
-import type { ComponentParsers, ExportPlugin } from "./plugin";
-import { NodesCollection } from "../nodes-collection";
-import { FigmaApi } from "../utilities/api";
-import { Logger } from "../utilities/log";
+import { type FigmaComponentData } from "../../types";
 import type { FigmaNode } from "../../nodes";
-import type { Parser } from "./parser";
+import { NodesCollection } from "../nodes-collection";
 
 export class FigmaComponent {
   protected readonly data: FigmaComponentData;
@@ -34,70 +22,5 @@ export class FigmaComponent {
         .map(({ nodeId }) => NodesCollection.get(nodeId))
         .filter((node): node is FigmaNode => typeof node !== "undefined");
     }
-  }
-
-  private async parseNodes(
-    nodes: FigmaNode[],
-    parsers: Partial<ComponentParsers>,
-    svg = false,
-  ): Promise<ParsedComponent[]> {
-    const parsedComponents = await Promise.all(
-      nodes.map(
-        async <Type extends NodeType>(node: FigmaNode<GenericNodeData<Type>>): Promise<ParsedComponent | undefined> => {
-          if (node) {
-            if (node.id && node.isGraphicNode && svg) {
-              try {
-                const exports = await FigmaApi.downloadGraphicNodes(this.data.fileName, [node.id], ExportFormat.SVG);
-                const markup = Object.values(exports).shift();
-                if (typeof markup === "string") {
-                  return {
-                    styles: {
-                      name: node.name || "",
-                      rules: {},
-                    },
-                    markup: {
-                      tag: "svg",
-                      content: markup,
-                    },
-                  };
-                }
-              } catch (error) {
-                Logger.log(
-                  `Failed to download graphic node "${node.id}": ${node.name}`,
-                  FigmaticSeverity.Error,
-                  Date.now(),
-                  { error },
-                );
-              }
-            }
-            const parser: Parser<Type> | undefined = parsers[node.type as Type];
-            if (parser) {
-              const data = await parser.parse(node);
-              const parsedChildren =
-                node.children && node.children.length > 0 ? await this.parseNodes(node.children, parsers) : [];
-
-              return {
-                styles: { ...data.styles, children: parsedChildren.map(({ styles }) => styles) },
-                markup: { ...data.markup, children: parsedChildren.map(({ markup }) => markup) },
-                code: [
-                  ...(data.code || []),
-                  ...(parsedChildren
-                    .map(({ code }) => code)
-                    .reduce((result, code) => [...(result || []), ...(code || [])], []) || []),
-                ],
-              };
-            }
-          }
-        },
-      ),
-    );
-
-    return parsedComponents.filter((component): component is ParsedComponent => !!component);
-  }
-
-  async generateCode(config: ExportPlugin): Promise<ExportedComponent> {
-    const data = await this.parseNodes(this.variantNodes, config.parsers, config.exportGraphicElementsAsSVG);
-
-    return await config.processor.generate(this.definition, data);
   }
 }

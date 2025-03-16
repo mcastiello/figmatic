@@ -15,13 +15,11 @@ export type FigmaComponentData = {
 export type ExportedStyles = {
   name: string;
   rules: Record<string, Map<string, string>>;
-  children?: ExportedStyles[];
 };
 
 export type Markup = {
   tag: string;
   attributes?: Record<string, string>;
-  children?: Markup[];
   content?: string;
 };
 

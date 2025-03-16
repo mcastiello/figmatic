@@ -1,7 +1,7 @@
 import { FigmaComponent } from "./parse/component";
 import type { ExportPlugin } from "./parse";
-import { Logger } from "./utilities/log";
 import { FigmaticSeverity } from "../types";
+import { Logger } from "./utilities/log";
 
 class ComponentsCollectionMap extends Map<string, FigmaComponent> {
   private plugins: Map<string, ExportPlugin> = new Map();
@@ -10,7 +10,11 @@ class ComponentsCollectionMap extends Map<string, FigmaComponent> {
     this.plugins.set(name, plugin);
   }
 
-  async generate(pluginName: string = "default"): Promise<Record<string, string>> {
+  getPlugin(name: string): ExportPlugin | undefined {
+    return this.plugins.get(name);
+  }
+
+  async generateExport(pluginName: string = "default"): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
     const plugin = this.plugins.get(pluginName);
 
@@ -18,7 +22,7 @@ class ComponentsCollectionMap extends Map<string, FigmaComponent> {
       for (const component of this.values()) {
         try {
           Logger.log(`Export component "${component.definition.name}"`, FigmaticSeverity.Debug);
-          const exported = await component.generateCode(plugin);
+          const exported = await plugin.processor.generate(component);
           result[exported.name] = exported.name;
         } catch (error) {
           Logger.log(
