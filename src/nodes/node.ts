@@ -9,6 +9,7 @@ import {
   type TypeStyle,
   isNodeData,
   isStyledNode,
+  isExportableNode,
   NodeType,
 } from "../types";
 import { GRAPHIC_NODES, STYLE_PROPERTY_MAP } from "../types/internal";
@@ -76,7 +77,7 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get isGraphicNode() {
-    return GRAPHIC_NODES.includes(this.nodeType as NodeType);
+    return GRAPHIC_NODES.includes(this.nodeType as NodeType) || isExportableNode(this.data);
   }
 
   getTokens(type: TokenStyleTypes) {

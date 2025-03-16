@@ -6,6 +6,7 @@ const FIGMA_ENDPOINT = "https://api.figma.com/v1";
 
 class Api {
   private token: string | undefined;
+  private fileName: string | undefined;
 
   setToken(token: string) {
     this.token = token;
@@ -13,7 +14,8 @@ class Api {
 
   async getFigmaFile(fileName: string): Promise<FigmaFile | undefined> {
     if (this.token) {
-      const file = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}`, {
+      this.fileName = fileName;
+      const file = await fetch(`${FIGMA_ENDPOINT}/files/${this.fileName}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -26,9 +28,9 @@ class Api {
     }
   }
 
-  async getLocalVariables(fileName: string): Promise<VariablesFile | undefined> {
+  async getLocalVariables(): Promise<VariablesFile | undefined> {
     if (this.token) {
-      const variablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/local`, {
+      const variablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${this.fileName}/variables/local`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -41,9 +43,9 @@ class Api {
     }
   }
 
-  async getPublishedVariables(fileName: string): Promise<VariablesFile | undefined> {
+  async getPublishedVariables(): Promise<VariablesFile | undefined> {
     if (this.token) {
-      const variablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${fileName}/variables/published`, {
+      const variablesFile = await fetch(`${FIGMA_ENDPOINT}/files/${this.fileName}/variables/published`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +67,6 @@ class Api {
   }
 
   async downloadGraphicNodes(
-    fileName: string,
     nodeIds: string[],
     format: ExportFormat = ExportFormat.SVG,
     scale = 1,
@@ -74,7 +75,7 @@ class Api {
 
     if (this.token) {
       const response = await fetch(
-        `${FIGMA_ENDPOINT}/images/${fileName}?ids=${nodeIds}&scale=${scale}&format=${format}`,
+        `${FIGMA_ENDPOINT}/images/${this.fileName}?ids=${nodeIds}&scale=${scale}&format=${format}`,
         {
           method: "GET",
           headers: {
