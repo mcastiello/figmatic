@@ -10,12 +10,24 @@ export abstract class Parser<Type extends keyof NodesMap> {
 }
 
 export abstract class GraphicParser extends Parser<keyof NodesMap> {
-  protected async getGraphicData(id: string) {
+  protected async getSvgData(id: string, scale = 1) {
     try {
-      const exports = await FigmaApi.downloadGraphicNodes([id], ExportFormat.SVG);
+      const exports = await FigmaApi.downloadGraphicNodes([id], ExportFormat.SVG, scale);
       const markup = Object.values(exports).shift();
       if (typeof markup === "string") {
         return markup;
+      }
+    } catch (error) {
+      this.log(`Download of graphic node "${id}" failed`, FigmaticSeverity.Error, { error });
+    }
+  }
+
+  protected async getImageData(id: string, format: ExportFormat.JPG | ExportFormat.PNG, scale = 1) {
+    try {
+      const exports = await FigmaApi.downloadGraphicNodes([id], format, scale);
+      const data = Object.values(exports).shift();
+      if (data instanceof ArrayBuffer) {
+        return data;
       }
     } catch (error) {
       this.log(`Download of graphic node "${id}" failed`, FigmaticSeverity.Error, { error });
