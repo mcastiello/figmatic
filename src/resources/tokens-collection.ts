@@ -78,7 +78,7 @@ class TokensCollectionMap extends Map<string, Variable> {
               ...Object.keys(resolvedValue).reduce(
                 (result: Record<string, boolean | number | string | ColorValue | undefined>, subKey: string) => ({
                   ...result,
-                  [`${key}+${subKey}`]: resolvedValue?.[subKey],
+                  [subKey !== key ? `${key}+${subKey}` : subKey]: resolvedValue?.[subKey],
                 }),
                 {},
               ),

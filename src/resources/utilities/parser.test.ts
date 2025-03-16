@@ -4,121 +4,10 @@ import { ComponentsCollection } from "../components-collection";
 import { CollectionParser } from "./parser";
 import { InstanceNode, TextNode } from "../../nodes";
 import { NodeType } from "../../types";
+import { ColorValue } from "../parse";
+import { figmaFile, tokensFile } from "../../types/mock";
 
 describe("Parser", () => {
-  const document = {
-    id: "document",
-    type: NodeType.Document,
-    children: [
-      {
-        id: "page-1",
-        name: "Elements",
-        type: NodeType.Canvas,
-        children: [
-          {
-            id: "component-set-1",
-            name: "Component Set",
-            type: NodeType.ComponentSet,
-            children: [
-              {
-                id: "component-1",
-                name: "Component",
-                type: NodeType.Component,
-                children: [
-                  {
-                    id: "frame-1",
-                    name: "Frame #1",
-                    type: NodeType.Frame,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            id: "frame-2",
-            name: "Frame #2",
-            type: NodeType.Frame,
-          },
-          {
-            id: "group-1",
-            name: "Group #1",
-            type: NodeType.Group,
-          },
-          {
-            id: "instance-1",
-            name: "Instance #1",
-            type: NodeType.Instance,
-            componentId: "component-1",
-          },
-          {
-            id: "section-1",
-            name: "Section #1",
-            type: NodeType.Section,
-            children: [
-              {
-                id: "text-1",
-                name: "Text #1",
-                type: NodeType.Text,
-                characters: "Test",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "page-2",
-        name: "Graphics",
-        type: NodeType.Canvas,
-        children: [
-          {
-            id: "graphic-1",
-            name: "Graphic",
-            type: NodeType.BooleanOperation,
-          },
-          {
-            id: "graphic-2",
-            name: "Graphic",
-            type: NodeType.Ellipse,
-          },
-          {
-            id: "graphic-3",
-            name: "Graphic",
-            type: NodeType.Line,
-          },
-          {
-            id: "graphic-4",
-            name: "Graphic",
-            type: NodeType.Rectangle,
-          },
-          {
-            id: "graphic-5",
-            name: "Graphic",
-            type: NodeType.RegularPolygon,
-          },
-          {
-            id: "graphic-6",
-            name: "Graphic",
-            type: NodeType.Slice,
-          },
-          {
-            id: "graphic-7",
-            name: "Graphic",
-            type: NodeType.Star,
-          },
-          {
-            id: "graphic-9",
-            name: "Graphic",
-            type: NodeType.Vector,
-          },
-          {
-            id: "graphic-9",
-            name: "Graphic",
-            type: NodeType.WashiTape,
-          },
-        ],
-      },
-    ],
-  };
   beforeEach(() => {
     NodesCollection.clear();
     TokensCollection.clear();
@@ -126,7 +15,7 @@ describe("Parser", () => {
   });
 
   test("Parse Nodes", () => {
-    CollectionParser.parseNodes(document);
+    CollectionParser.parseNodes(figmaFile.document);
 
     expect(NodesCollection.get<TextNode>("text-1")?.content).toEqual("Test");
     expect(NodesCollection.get<InstanceNode>("instance-1")?.component?.id).toEqual("component-1");
@@ -134,9 +23,34 @@ describe("Parser", () => {
   });
 
   test("Parse Nodes from specific pages", () => {
-    CollectionParser.parseNodes(document, ["Elements"]);
+    CollectionParser.parseNodes(figmaFile.document, ["Elements"]);
 
     expect(NodesCollection.get("group-1")?.type).toEqual(NodeType.Group);
     expect(NodesCollection.get("graphic-3")).toEqual(undefined);
+  });
+
+  test("Parse Components", () => {
+    CollectionParser.parseNodes(figmaFile.document);
+    CollectionParser.parseComponents("test", figmaFile.componentSets, figmaFile.components);
+
+    expect(ComponentsCollection.get("component-set-1")?.variantNodes[0].id).toEqual("component-1");
+    expect(ComponentsCollection.get("component-set-1")?.definition.name).toEqual("Component");
+    expect(ComponentsCollection.get("component-3")?.variantNodes[0].id).toEqual("component-3");
+    expect(ComponentsCollection.get("component-3")?.definition.name).toEqual("Single Component");
+  });
+
+  test("Parse Tokens", () => {
+    CollectionParser.parseNodes(figmaFile.document);
+    CollectionParser.parseTokens(tokensFile, figmaFile.styles);
+
+    expect(TokensCollection.getStyle("style")?.data).toEqual({ color: { r: 1, g: 0, b: 0 } });
+    expect(TokensCollection.getStyle("style")?.name).toEqual("Red");
+
+    expect(TokensCollection.getCollection("22:33")?.name).toEqual("Themes");
+    expect(TokensCollection.getByCollection("22:33")?.[0].name).toEqual("Var:Red");
+    expect(TokensCollection.getByKey("VariableID:11:22")?.name).toEqual("Var:Red");
+    expect(TokensCollection.getModeName("55:66")).toEqual("Dark Theme");
+    expect(TokensCollection.resolveTokenVariable("11:22")).toEqual({ Dark: new ColorValue({ r: 1, g: 0, b: 0 }) });
+    expect(TokensCollection.resolveTokenVariable("33:44")).toEqual({ Dark: new ColorValue({ r: 1, g: 0, b: 0 }) });
   });
 });

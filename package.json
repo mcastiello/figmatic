@@ -1,6 +1,6 @@
 {
   "name": "@mcastiello/figmatic",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "author": "Marco Castiello <marco.castiello@gmail.com>",
   "license": "MIT",
   "source": "src/index.ts",
@@ -90,6 +90,10 @@
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/types/*.ts",
+      "!src/resources/parse/parser.ts",
+      "!src/resources/parse/plugin.ts",
+      "!src/resources/parse/processor.ts",
+      "!src/resources/utilities/api.ts",
       "!src/**/index.ts",
       "!src/**/mock.ts"
     ],

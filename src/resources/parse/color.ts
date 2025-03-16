@@ -70,11 +70,11 @@ export class ColorValue {
   }
 
   get hsl() {
-    return `hsl(${this.h}, ${this.s}, ${this.l})`;
+    return `hsl(${this.hue}, ${this.saturation}, ${this.lightness})`;
   }
 
   get hsla() {
-    return `hsla(${this.h}, ${this.s}, ${this.l}, ${this.color.a})`;
+    return `hsla(${this.hue}, ${this.saturation}, ${this.lightness}, ${this.alpha})`;
   }
 
   get rgb() {
@@ -82,14 +82,14 @@ export class ColorValue {
   }
 
   get rgba() {
-    return `hsla(${this.red}, ${this.green}, ${this.blue}, ${this.color.a})`;
+    return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
   }
 
   get hex() {
-    return `#${this.red.toString(16)}${this.green.toString(16)}${this.blue.toString(16)}`;
+    return `#${this.red.toString(16).padStart(2, "0")}${this.green.toString(16).padStart(2, "0")}${this.blue.toString(16).padStart(2, "0")}`;
   }
 
   toString(hsl: boolean = false) {
-    return hsl ? (this.color.a !== 1 ? this.hsla : this.hsl) : this.color.a !== 1 ? this.rgba : this.hex;
+    return hsl ? (this.alpha !== 1 ? this.hsla : this.hsl) : this.alpha !== 1 ? this.rgba : this.hex;
   }
 }

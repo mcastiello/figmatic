@@ -137,6 +137,6 @@ export type FigmaticBusDefinition = {
 };
 
 export const FigmaticBusConfig: EventBusConfig<FigmaticBusDefinition> = {
-  cacheEvents: false,
+  cacheEvents: true,
   publishAsynchronously: true,
 };

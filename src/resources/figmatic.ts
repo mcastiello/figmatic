@@ -96,17 +96,15 @@ class FigmaLoader {
 
       const remoteVariables = await FigmaApi.getPublishedVariables(fileName);
 
-      if (localVariables && remoteVariables) {
-        this.variables.set(fileName, {
-          meta: {
-            variables: { ...remoteVariables.meta.variables, ...localVariables.meta.variables },
-            variableCollections: {
-              ...remoteVariables.meta.variableCollections,
-              ...localVariables.meta.variableCollections,
-            },
+      this.variables.set(fileName, {
+        meta: {
+          variables: { ...remoteVariables?.meta?.variables, ...localVariables?.meta?.variables },
+          variableCollections: {
+            ...remoteVariables?.meta?.variableCollections,
+            ...localVariables?.meta?.variableCollections,
           },
-        });
-      }
+        },
+      });
 
       Logger.channel.publish(FigmaticEvents.TokensDownloadCompleted, { branch: fileName });
       Logger.log(`Download of tokens for branch "${fileName}" completed`, FigmaticSeverity.Debug);
