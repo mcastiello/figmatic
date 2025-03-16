@@ -29,6 +29,7 @@ export {
   type ComponentParsers,
   type ExportPlugin,
   Parser,
+  GraphicParser,
   Processor,
 } from "./resources";
 

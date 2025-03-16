@@ -94,9 +94,9 @@ class FigmaLoader {
       Logger.channel.publish(FigmaticEvents.TokensDownloadStarted, { branch: fileName });
       Logger.log(`Download of tokens for "${fileName}" started`, FigmaticSeverity.Debug);
 
-      const localVariables = await FigmaApi.getLocalVariables(fileName);
+      const localVariables = await FigmaApi.getLocalVariables();
 
-      const remoteVariables = await FigmaApi.getPublishedVariables(fileName);
+      const remoteVariables = await FigmaApi.getPublishedVariables();
 
       this.variables.set(fileName, {
         meta: {
@@ -224,7 +224,7 @@ class FigmaLoader {
         Logger.log(`Download of graphic elements started`, FigmaticSeverity.Info, start);
         const nodeIds = nodes.map((node) => node.id).filter((id): id is string => !!id);
 
-        const images = await FigmaApi.downloadGraphicNodes(this.selectedBranch, nodeIds, format, scale);
+        const images = await FigmaApi.downloadGraphicNodes(nodeIds, format, scale);
 
         const end = Date.now();
         Logger.channel.publish(FigmaticEvents.GraphicDownloadCompleted, {
@@ -292,7 +292,7 @@ class FigmaLoader {
 
       Logger.log(`Start parsing nodes`, FigmaticSeverity.Info, start);
 
-      await CollectionParser.generateParsedNodes(plugin, this.selectedBranch, plugin.exportGraphicElementsAsSVG);
+      await CollectionParser.generateParsedNodes(plugin);
 
       const complete = Date.now();
       Logger.log(
@@ -313,9 +313,8 @@ class FigmaLoader {
       );
 
       return exports;
-    } else {
-      return {};
     }
+    return {};
   }
 }
 

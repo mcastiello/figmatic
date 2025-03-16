@@ -1,5 +1,5 @@
 import type { NodesMap } from "../../types";
-import type { Parser } from "./parser";
+import type { GraphicParser, Parser } from "./parser";
 import type { Processor } from "./processor";
 
 export type ComponentParsers = {
@@ -8,6 +8,6 @@ export type ComponentParsers = {
 
 export type ExportPlugin = {
   parsers: Partial<ComponentParsers>;
+  graphicParser?: GraphicParser;
   processor: Processor;
-  exportGraphicElementsAsSVG?: boolean;
 };

@@ -1,5 +1,5 @@
 import { NodeType } from "./enumerators";
-import type { GenericNode, GenericNodeData, NodeDefinitionData, StyledNodeData } from "./nodes";
+import type { ExportableNode, GenericNode, GenericNodeData, NodeDefinitionData, StyledNodeData } from "./nodes";
 import type { NodesDataMap, NodesMap } from "./map";
 import type { VariableAlias, VariableValue } from "./properties";
 
@@ -17,3 +17,6 @@ export const isTypedNode = <Type extends keyof NodesMap>(node: unknown, type: Ty
 export const isStyledNode = <DataType extends GenericNodeData = GenericNodeData>(
   node?: NodeDefinitionData<DataType>,
 ): node is StyledNodeData<DataType> => !!node && Object.hasOwn(node, "styles");
+export const isExportableNode = <DataType extends GenericNodeData = GenericNodeData>(
+  node?: NodeDefinitionData<DataType>,
+): node is NodeDefinitionData<DataType> & ExportableNode => !!node && Object.hasOwn(node, "exportSettings");

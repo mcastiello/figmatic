@@ -6,8 +6,6 @@ import {
   type Style,
   type VariablesFile,
   NodeType,
-  FigmaticSeverity,
-  ExportFormat,
   isTypedNode,
   isNodeData,
   isTypedNodeData,
@@ -40,8 +38,6 @@ import { TokensCollection } from "../tokens-collection";
 import { NodesCollection } from "../nodes-collection";
 import { ComponentsCollection } from "../components-collection";
 import { NodeNameMap, NodeStylesCollection, NodeTokensCollections, ParsedNodesCollection } from "./maps";
-import { FigmaApi } from "./api";
-import { Logger } from "./log";
 
 class Parser {
   parseComponents(fileName: string, sets: Record<string, Component> = {}, components: Record<string, Component> = {}) {
@@ -182,39 +178,16 @@ class Parser {
     }
   }
 
-  async generateParsedNodes(plugin: ExportPlugin, fileName: string, svg = false) {
+  async generateParsedNodes(plugin: ExportPlugin) {
     for (const node of NodesCollection.values()) {
       const type = node.type as keyof NodesMap;
       const id = node.id;
       if (type && id && isTypedNode(node, type)) {
-        if (node.isGraphicNode && !node.parent?.isGraphicNode && svg) {
-          try {
-            const exports = await FigmaApi.downloadGraphicNodes(fileName, [id], ExportFormat.SVG);
-            const markup = Object.values(exports).shift();
-            if (typeof markup === "string") {
-              const parsedNode = new ParsedNode(
-                {
-                  styles: {
-                    name: node.name || "",
-                    rules: {},
-                  },
-                  markup: {
-                    tag: "svg",
-                    content: markup,
-                  },
-                },
-                [],
-              );
+        if (node.isGraphicNode && plugin.graphicParser) {
+          if (!node.parent?.isGraphicNode) {
+            const parsedNode = await plugin.graphicParser.parse(node);
 
-              ParsedNodesCollection.set(id, parsedNode);
-            }
-          } catch (error) {
-            Logger.log(
-              `Failed to download graphic node "${node.id}": ${node.name}`,
-              FigmaticSeverity.Error,
-              Date.now(),
-              { error },
-            );
+            ParsedNodesCollection.set(id, new ParsedNode(parsedNode, []));
           }
         } else {
           const parser = plugin.parsers[type] as NodeParser<keyof NodesMap>;
