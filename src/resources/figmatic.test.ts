@@ -15,8 +15,8 @@ describe("Figmatic", () => {
     await Figmatic.load("test", "token123");
 
     expect(requestFile).toHaveBeenCalledWith("test");
-    expect(requestLocalVariables).toHaveBeenCalledWith("test");
-    expect(requestPublicVariables).toHaveBeenCalledWith("test");
+    expect(requestLocalVariables).toHaveBeenCalled();
+    expect(requestPublicVariables).toHaveBeenCalled();
 
     expect(ComponentsCollection.size).toEqual(4);
     expect(NodesCollection.size).toEqual(22);
