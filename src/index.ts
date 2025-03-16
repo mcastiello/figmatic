@@ -19,5 +19,17 @@ export type {
   WashiTapeNode,
 } from "./nodes";
 
-export { Figmatic, TokensCollection, NodesCollection, ComponentsCollection } from "./resources";
+export {
+  Figmatic,
+  TokensCollection,
+  NodesCollection,
+  type ColorValue,
+  type FigmaComponent,
+  type ParsedNode,
+  type ComponentParsers,
+  type ExportPlugin,
+  Parser,
+  Processor,
+} from "./resources";
+
 export * from "./types";

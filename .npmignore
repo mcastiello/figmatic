@@ -2,8 +2,10 @@
 .idea/
 src/
 dist/resources/utilities/
+dist/resources/components-collection.d.ts
 dist/types/constants.d.ts
 dist/types/internal.d.ts
+dist/types/mock.d.ts
 .eslintrc
 .gitignore
 .prettierrc

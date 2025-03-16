@@ -1,6 +1,6 @@
 {
   "name": "@mcastiello/figmatic",
-  "version": "0.1.13",
+  "version": "0.2.0",
   "author": "Marco Castiello <marco.castiello@gmail.com>",
   "license": "MIT",
   "source": "src/index.ts",
@@ -42,7 +42,7 @@
     "compile": "microbundle build --compress --no-sourcemap --format modern,cjs --tsconfig tsconfig.build.json",
     "build": "yarn clean && yarn compile",
     "debug": "tsx ./src/test.ts",
-    "test": "jest --coverage --passWithNoTests",
+    "test": "jest --coverage",
     "quality:fix": "eslint --fix src/**/*.ts",
     "quality:check": "eslint src/**/*.ts"
   },
@@ -93,7 +93,9 @@
       "!src/resources/parse/parser.ts",
       "!src/resources/parse/plugin.ts",
       "!src/resources/parse/processor.ts",
+      "!src/resources/parse/parsed-node.ts",
       "!src/resources/utilities/api.ts",
+      "!src/resources/components-collection.ts",
       "!src/**/index.ts",
       "!src/**/mock.ts"
     ],

@@ -6,8 +6,10 @@ import { TokensCollection } from "./tokens-collection";
 import { CollectionParser } from "./utilities/parser";
 import { FigmaApi } from "./utilities/api";
 import { Logger } from "./utilities/log";
+import { ParsedNodesCollection } from "./utilities/maps";
 import { Channels, type FigmaticBusDefinition } from "../types/events";
 import type { FigmaNode } from "../nodes";
+import type { ExportPlugin } from "./parse";
 
 class FigmaLoader {
   private file: string | undefined;
@@ -270,11 +272,38 @@ class FigmaLoader {
 
         Logger.channel.publish(FigmaticEvents.SwitchBranchCompleted, { branch: this.selectedBranch });
         Logger.log(
-          `Switch to branch "${this.selectedBranch}" completed:  ${this.getDuration(start, end)}`,
+          `Switch to branch "${this.selectedBranch}" completed: ${this.getDuration(start, end)}`,
           FigmaticSeverity.Info,
           end,
         );
       }
+    }
+  }
+
+  registerExportPlugin(plugin: ExportPlugin, name = "default") {
+    ComponentsCollection.registerExportPlugin(plugin, name);
+  }
+
+  async generateExport(pluginName: string = "default"): Promise<Record<string, string>> {
+    const plugin = ComponentsCollection.getPlugin(pluginName);
+
+    if (plugin && this.selectedBranch) {
+      const start = Date.now();
+
+      Logger.log(`Start parsing nodes`, FigmaticSeverity.Info, start);
+
+      await CollectionParser.generateParsedNodes(plugin, this.selectedBranch, plugin.exportGraphicElementsAsSVG);
+
+      const end = Date.now();
+      Logger.log(
+        `Parsing of nodes completed\n\t- Total nodes parsed: ${ParsedNodesCollection.size}\n\t- Duration: ${this.getDuration(start, end)}`,
+        FigmaticSeverity.Info,
+        end,
+      );
+
+      return await ComponentsCollection.generateExport(pluginName);
+    } else {
+      return {};
     }
   }
 }

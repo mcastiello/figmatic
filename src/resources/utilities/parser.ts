@@ -1,7 +1,20 @@
-import type { Component, FigmaComponentData, FigmaComponentVariant, Style, VariablesFile } from "../../types";
+import {
+  type Component,
+  type FigmaComponentData,
+  type FigmaComponentVariant,
+  type NodesMap,
+  type Style,
+  type VariablesFile,
+  NodeType,
+  FigmaticSeverity,
+  ExportFormat,
+  isTypedNode,
+  isNodeData,
+  isTypedNodeData,
+} from "../../types";
 import { FigmaComponent } from "../parse/component";
 import type { FigmaNode } from "../../nodes";
-import { isNodeData, isTypedNodeData, NodeType } from "../../types";
+import type { Parser as NodeParser } from "../parse";
 import {
   BooleanOperationNode,
   CanvasNode,
@@ -21,10 +34,14 @@ import {
   VectorNode,
   WashiTapeNode,
 } from "../../nodes";
+import type { ExportPlugin } from "../parse";
+import { ParsedNode } from "../parse/parsed-node";
 import { TokensCollection } from "../tokens-collection";
 import { NodesCollection } from "../nodes-collection";
 import { ComponentsCollection } from "../components-collection";
-import { NodeNameMap, NodeStylesCollection, NodeTokensCollections } from "./maps";
+import { NodeNameMap, NodeStylesCollection, NodeTokensCollections, ParsedNodesCollection } from "./maps";
+import { FigmaApi } from "./api";
+import { Logger } from "./log";
 
 class Parser {
   parseComponents(fileName: string, sets: Record<string, Component> = {}, components: Record<string, Component> = {}) {
@@ -162,6 +179,54 @@ class Parser {
       Object.entries(styles).forEach(([key, style]) => {
         NodeStylesCollection.set(key, style);
       });
+    }
+  }
+
+  async generateParsedNodes(plugin: ExportPlugin, fileName: string, svg = false) {
+    for (const node of NodesCollection.values()) {
+      const type = node.type as keyof NodesMap;
+      const id = node.id;
+      if (type && id && isTypedNode(node, type)) {
+        if (node.isGraphicNode && !node.parent?.isGraphicNode && svg) {
+          try {
+            const exports = await FigmaApi.downloadGraphicNodes(fileName, [id], ExportFormat.SVG);
+            const markup = Object.values(exports).shift();
+            if (typeof markup === "string") {
+              const parsedNode = new ParsedNode(
+                {
+                  styles: {
+                    name: node.name || "",
+                    rules: {},
+                  },
+                  markup: {
+                    tag: "svg",
+                    content: markup,
+                  },
+                },
+                [],
+              );
+
+              ParsedNodesCollection.set(id, parsedNode);
+            }
+          } catch (error) {
+            Logger.log(
+              `Failed to download graphic node "${node.id}": ${node.name}`,
+              FigmaticSeverity.Error,
+              Date.now(),
+              { error },
+            );
+          }
+        } else {
+          const parser = plugin.parsers[type] as NodeParser<keyof NodesMap>;
+          if (parser) {
+            const data = await parser.parse(node);
+            const children = node.children.map((child) => child.id).filter((id): id is string => !!id) || [];
+            const parsedNode = new ParsedNode(data, children);
+
+            ParsedNodesCollection.set(id, parsedNode);
+          }
+        }
+      }
     }
   }
 }
