@@ -294,14 +294,25 @@ class FigmaLoader {
 
       await CollectionParser.generateParsedNodes(plugin, this.selectedBranch, plugin.exportGraphicElementsAsSVG);
 
+      const complete = Date.now();
+      Logger.log(
+        `Parsing of nodes completed\n\t- Total nodes parsed: ${ParsedNodesCollection.size}\n\t- Duration: ${this.getDuration(start, complete)}`,
+        FigmaticSeverity.Info,
+        complete,
+      );
+
+      Logger.log(`Start generating exported files`, FigmaticSeverity.Info, complete);
+
+      const exports = await ComponentsCollection.generateExport(pluginName);
+
       const end = Date.now();
       Logger.log(
-        `Parsing of nodes completed\n\t- Total nodes parsed: ${ParsedNodesCollection.size}\n\t- Duration: ${this.getDuration(start, end)}`,
+        `Export completed\n\t- Total files generated: ${Object.values(exports).length}\n\t- Duration: ${this.getDuration(complete, end)}`,
         FigmaticSeverity.Info,
         end,
       );
 
-      return await ComponentsCollection.generateExport(pluginName);
+      return exports;
     } else {
       return {};
     }
