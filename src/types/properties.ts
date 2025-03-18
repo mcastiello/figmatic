@@ -257,6 +257,7 @@ export type Variable = {
   valuesByMode: Record<string, VariableValue | VariableAlias>;
   description: string;
   scopes: VariableScope[];
+  deletedButReferenced: boolean;
 };
 
 export type VariableMode = {
