@@ -26,7 +26,7 @@ export type Markup = {
 export type ParsedComponent = {
   styles: ExportedStyles;
   markup: Markup;
-  code?: string[];
+  code?: Record<string, string[]>;
 };
 
 export type ExportedComponent = {
