@@ -14,6 +14,10 @@ export class ParsedNode {
     return this.childrenIds.map((id) => ParsedNodesCollection.get(id)).filter((data): data is ParsedNode => !!data);
   }
 
+  get name(): string {
+    return this.data.styles.name;
+  }
+
   get definition() {
     return this.data;
   }
