@@ -19,11 +19,18 @@ class ComponentsCollectionMap extends Map<string, FigmaComponent> {
     const plugin = this.plugins.get(pluginName);
 
     if (plugin) {
+      try {
+        Logger.log(`Export tokens`, FigmaticSeverity.Debug);
+        const exported = await plugin.processor.generateTokens();
+        result[exported.name] = exported.content;
+      } catch (error) {
+        Logger.log(`Error while generating tokens`, FigmaticSeverity.Error, Date.now(), { error });
+      }
       for (const component of this.values()) {
         try {
           Logger.log(`Export component "${component.definition.name}"`, FigmaticSeverity.Debug);
-          const exported = await plugin.processor.generate(component);
-          result[exported.name] = exported.name;
+          const exported = await plugin.processor.generateComponent(component);
+          result[exported.name] = exported.content;
         } catch (error) {
           Logger.log(
             `Error while exporting component "${component.definition.name}"`,
