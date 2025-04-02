@@ -29,7 +29,7 @@ export type ParsedComponent = {
   code?: Record<string, string[]>;
 };
 
-export type ExportedComponent = {
+export type ExportedElement = {
   name: string;
   content: string;
 };
