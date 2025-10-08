@@ -1,4 +1,11 @@
-import { type ExportFile, ExportFormat, type FigmaFile, FigmaticSeverity, type VariablesFile } from "../../types";
+import {
+  type DownloadedGraphics,
+  type ExportFile,
+  ExportFormat,
+  type FigmaFile,
+  FigmaticSeverity,
+  type VariablesFile,
+} from "../../types";
 import { GRAPHIC_RESPONSE_TYPES } from "../../types/constants";
 import { Logger } from "./log";
 
@@ -75,12 +82,12 @@ class Api {
     return `${images.reduce((total, image) => total + this.calculateSize(image), 0).toFixed(2)}Kb`;
   }
 
-  private async downloadBatchOfGraphicNodes(
+  private async downloadBatchOfGraphicNodes<Format extends ExportFormat = ExportFormat.SVG>(
     nodeIds: string[],
-    format: ExportFormat = ExportFormat.SVG,
+    format: Format = ExportFormat.SVG as Format,
     scale = 1,
-  ): Promise<Record<string, string | ArrayBuffer>> {
-    const images: Record<string, string | ArrayBuffer> = {};
+  ): Promise<DownloadedGraphics<Format>> {
+    const images: DownloadedGraphics<Format> = {};
 
     if (this.token) {
       Logger.log(`Creating export for ${nodeIds.length} graphic nodes`, FigmaticSeverity.Debug);
@@ -113,7 +120,9 @@ class Api {
             },
           });
 
-          images[id] = format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer();
+          images[id] = (
+            format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer()
+          ) as (typeof images)[string];
           Logger.log(`Download completed: ${this.calculateTotalSize([images[id]])}`, FigmaticSeverity.Debug);
         }
       }
@@ -121,12 +130,12 @@ class Api {
     return images;
   }
 
-  async downloadGraphicNodes(
+  async downloadGraphicNodes<Format extends ExportFormat = ExportFormat.SVG>(
     nodeIds: string[],
-    format: ExportFormat = ExportFormat.SVG,
+    format: Format = ExportFormat.SVG as Format,
     scale = 1,
-  ): Promise<Record<string, string | ArrayBuffer>> {
-    let images: Record<string, string | ArrayBuffer> = {};
+  ): Promise<DownloadedGraphics<Format>> {
+    let images: DownloadedGraphics<Format> = {};
 
     if (this.token) {
       const batches: string[][] = [];

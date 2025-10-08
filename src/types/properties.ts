@@ -5,6 +5,7 @@ import {
   ConstraintType,
   DevStatusType,
   EffectType,
+  ExportFormat,
   FontStyle,
   FontWeight,
   HorizontalLayoutConstrain,
@@ -273,3 +274,8 @@ export type VariableCollection = {
   defaultModeId: string;
   variableIds: string[];
 };
+
+export type DownloadedGraphics<Format extends ExportFormat = ExportFormat.SVG> = Record<
+  string,
+  Format extends ExportFormat.SVG ? string : ArrayBuffer
+>;
