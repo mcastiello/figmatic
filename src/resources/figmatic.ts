@@ -1,5 +1,13 @@
 import type { EventOf, SubscriptionConfig, SubscriptionOf } from "@mcastiello/event-bus";
-import { ExportFormat, type FigmaFile, FigmaticEvents, FigmaticSeverity, NodeType, type VariablesFile } from "../types";
+import {
+  type DownloadedGraphics,
+  ExportFormat,
+  type FigmaFile,
+  FigmaticEvents,
+  FigmaticSeverity,
+  NodeType,
+  type VariablesFile,
+} from "../types";
 import { NodesCollection } from "./nodes-collection";
 import { ComponentsCollection } from "./components-collection";
 import { TokensCollection } from "./tokens-collection";
@@ -215,11 +223,11 @@ class FigmaLoader {
     TokensCollection.clear();
   }
 
-  async downloadGraphics(
+  async downloadGraphics<Format extends ExportFormat = ExportFormat.SVG>(
     nodes: FigmaNode[],
-    format: ExportFormat = ExportFormat.SVG,
+    format: Format = ExportFormat.SVG as Format,
     scale: number = 1,
-  ): Promise<Record<string, string | ArrayBuffer>> {
+  ): Promise<DownloadedGraphics<Format>> {
     if (this.selectedBranch) {
       try {
         const start = Date.now();
