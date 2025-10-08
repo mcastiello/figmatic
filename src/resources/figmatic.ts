@@ -70,6 +70,14 @@ class FigmaLoader {
     return this.branch || this.file;
   }
 
+  get graphicBatchSize() {
+    return FigmaApi.getBatchSize();
+  }
+
+  set graphicBatchSize(batchSize: number) {
+    FigmaApi.setBatchSize(batchSize);
+  }
+
   private async downloadBranch(fileName: string): Promise<void> {
     try {
       Logger.channel.publish(FigmaticEvents.BranchDownloadStarted, { branch: fileName });

@@ -7,9 +7,18 @@ const FIGMA_ENDPOINT = "https://api.figma.com/v1";
 class Api {
   private token: string | undefined;
   private fileName: string | undefined;
+  private batchSize: number = 25;
 
   setToken(token: string) {
     this.token = token;
+  }
+
+  setBatchSize(batchSize: number) {
+    this.batchSize = batchSize;
+  }
+
+  getBatchSize() {
+    return this.batchSize;
   }
 
   async getFigmaFile(fileName: string): Promise<FigmaFile | undefined> {
@@ -66,7 +75,7 @@ class Api {
     return `${images.reduce((total, image) => total + this.calculateSize(image), 0).toFixed(2)}Kb`;
   }
 
-  async downloadGraphicNodes(
+  private async downloadBatchOfGraphicNodes(
     nodeIds: string[],
     format: ExportFormat = ExportFormat.SVG,
     scale = 1,
@@ -74,6 +83,7 @@ class Api {
     const images: Record<string, string | ArrayBuffer> = {};
 
     if (this.token) {
+      Logger.log(`Creating export for ${nodeIds.length} graphic nodes`, FigmaticSeverity.Debug);
       const response = await fetch(
         `${FIGMA_ENDPOINT}/images/${this.fileName}?ids=${nodeIds}&scale=${scale}&format=${format}`,
         {
@@ -86,7 +96,11 @@ class Api {
         },
       );
 
+      Logger.log(`Export created`, FigmaticSeverity.Debug);
+
       const imageLinks: ExportFile = await response.json();
+
+      Logger.log(`Preparing download of ${Object.keys(imageLinks).length} image files`, FigmaticSeverity.Debug);
 
       for (const [id, url] of Object.entries(imageLinks.images)) {
         Logger.log(`Download of file ${url}`, FigmaticSeverity.Debug);
@@ -102,6 +116,32 @@ class Api {
           images[id] = format === ExportFormat.SVG ? await image.text() : await image.arrayBuffer();
           Logger.log(`Download completed: ${this.calculateTotalSize([images[id]])}`, FigmaticSeverity.Debug);
         }
+      }
+    }
+    return images;
+  }
+
+  async downloadGraphicNodes(
+    nodeIds: string[],
+    format: ExportFormat = ExportFormat.SVG,
+    scale = 1,
+  ): Promise<Record<string, string | ArrayBuffer>> {
+    let images: Record<string, string | ArrayBuffer> = {};
+
+    if (this.token) {
+      const batches: string[][] = [];
+
+      while (nodeIds.length > 0) {
+        batches.push(nodeIds.splice(0, this.batchSize));
+      }
+
+      Logger.log(`Graphic nodes will be downloaded in ${batches.length} batches`, FigmaticSeverity.Debug);
+
+      for (let i = 0; i < batches.length; i++) {
+        Logger.log(`Start exporting batch ${i + 1}...`, FigmaticSeverity.Debug);
+        const downloadedImages = await this.downloadBatchOfGraphicNodes(batches[i], format, scale);
+
+        images = { ...images, ...downloadedImages };
       }
     }
     return images;
