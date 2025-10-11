@@ -3,3 +3,4 @@ node_modules
 dist
 coverage
 test.ts
+src/exporter/index.ts

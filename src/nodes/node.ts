@@ -17,9 +17,9 @@ import { TokensCollection } from "../resources/tokens-collection";
 import { NodesCollection } from "../resources/nodes-collection";
 
 export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
-  protected readonly nodeId: string | undefined;
-  protected readonly nodeType: DataType["type"] | undefined;
-  protected readonly data: NodeDefinitionData<DataType> | undefined;
+  protected readonly nodeId: string = "";
+  protected readonly nodeType: DataType["type"] = NodeType.Generic;
+  protected readonly data: NodeDefinitionData<DataType> = this.DefaultValues;
   protected readonly childrenIds: string[] | undefined;
   protected readonly parentId: string | undefined;
 
@@ -53,7 +53,7 @@ export class FigmaNode<DataType extends GenericNodeData = GenericNodeData> {
   }
 
   get name() {
-    return this.data?.name;
+    return this.data.name;
   }
 
   get definition() {

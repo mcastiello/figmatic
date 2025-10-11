@@ -76,9 +76,8 @@ class Parser {
     [...singleVariantComponents, ...multiVariantComponents].forEach((data) => {
       const component = new FigmaComponent(data);
 
-      // Store using the component id, but also using the id of each variant to make it easier to recall
+      // Store using the component id
       ComponentsCollection.set(data.nodeId, component);
-      data.variants.forEach(({ nodeId }) => ComponentsCollection.set(nodeId, component));
     });
   }
 
