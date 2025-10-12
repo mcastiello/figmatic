@@ -172,7 +172,7 @@ class Parser {
         NodeTokensCollections.set(collection.id, collection);
       });
       Object.entries(styles).forEach(([key, style]) => {
-        NodeStylesCollection.set(key, style);
+        NodeStylesCollection.set(key, { id: key, ...style });
       });
     }
   }

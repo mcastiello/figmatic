@@ -1,29 +1,37 @@
-import { Parser } from "../../resources";
-import { FigmaticSeverity, NodeType, type ParsedComponent } from "../../types";
+import { FigmaticSeverity, NodeType, type ParsedComponent, type TypeStyle } from "../../types";
 import { TextNode } from "../../nodes";
-import { className } from "../utils/text";
-import { getClassName, getNodeStyles } from "../utils/styles";
+import { NodeParser } from "./node-parser";
+import { getNodeTextStyles, parseTextStyles } from "../utils";
 
-export class TextParser extends Parser<NodeType.Text> {
+export class TextParser extends NodeParser<NodeType.Text> {
   async parse(node: TextNode): Promise<ParsedComponent> {
-    const name = getClassName(node);
-    const styles = getNodeStyles(node.definition);
-    const styleClasses = styles.map((style) => className(style.name));
+    const component = await super.parse(node);
+    const nodeStyle = node.definition.style;
+    const externalStyle = getNodeTextStyles(node.definition);
 
-    const component: ParsedComponent = {
-      styles: {
-        name,
-        rules: {},
-      },
-      markup: {
-        tag: "span",
-        attributes: {
-          class: [name, ...styleClasses].join(" "),
-        },
-      },
-    };
+    if (externalStyle && nodeStyle) {
+      const overrides = Object.keys(nodeStyle)
+        .map((key) => key as keyof TypeStyle)
+        .reduce((result: Partial<TypeStyle>, key: keyof TypeStyle): Partial<TypeStyle> => {
+          const externalValue = externalStyle[key];
+          const internalValue = nodeStyle[key];
 
-    this.log("Text Node Received", FigmaticSeverity.Debug, { component, node: node.definition });
+          if (externalValue !== internalValue) {
+            return { ...result, [key]: internalValue };
+          }
+          return result;
+        }, {});
+
+      const styles = parseTextStyles(overrides);
+
+      styles.entries().forEach(([key, value]) => {
+        component.styles.rules[key] = value;
+      });
+    }
+
+    component.markup.tag = "span";
+
+    this.log("Text Node Parsed", FigmaticSeverity.Debug, component);
 
     return component;
   }

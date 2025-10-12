@@ -1,18 +1,24 @@
 import { Parser } from "../../resources";
-import { FigmaticSeverity, type NodesMap, type ParsedComponent } from "../../types";
+import { type NodesMap, type ParsedComponent } from "../../types";
+import { getClassName, getNodeStyles, className } from "../utils";
 
 export class NodeParser<Type extends keyof NodesMap> extends Parser<Type> {
-  parse<Node extends NodesMap[Type]>(node: Node): Promise<ParsedComponent> {
-    this.log("Node Received", FigmaticSeverity.Debug, node);
-    return Promise.resolve({
+  async parse<Node extends NodesMap[Type]>(node: Node): Promise<ParsedComponent> {
+    const name = getClassName(node);
+    const styles = getNodeStyles(node.definition);
+    const styleClasses = styles.map((style) => className(style.name));
+
+    return {
       styles: {
-        name: node.name || "",
+        name,
         rules: {},
       },
       markup: {
-        tag: "",
-        attributes: {},
+        tag: "div",
+        attributes: {
+          class: [name, ...styleClasses].join(" "),
+        },
       },
-    });
+    };
   }
 }

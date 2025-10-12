@@ -14,7 +14,7 @@ export type FigmaComponentData = {
 
 export type ExportedStyles = {
   name: string;
-  rules: Record<string, Map<string, string>>;
+  rules: Record<string, string>;
 };
 
 export type Markup = {

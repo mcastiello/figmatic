@@ -43,8 +43,11 @@ export type Style = {
   styleType: StyleType;
 };
 
-export type StyleData = Style & {
+export type StyleRecord = Style & {
   id: string;
+};
+
+export type StyleData = StyleRecord & {
   data: Paint | Effect | TypeStyle;
 };
 
