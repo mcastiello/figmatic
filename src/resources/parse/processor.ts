@@ -6,7 +6,8 @@ import { ParsedNodesCollection } from "../utilities/maps";
 
 export abstract class Processor {
   abstract generateTokens(): Promise<ExportedElement>;
-  abstract generateComponent(definition: FigmaComponent): Promise<ExportedElement>;
+  abstract generateStyles(): Promise<ExportedElement[]>;
+  abstract generateComponent(definition: FigmaComponent, sharedStyles: ExportedElement[]): Promise<ExportedElement>;
   protected log(message: string, severity: FigmaticSeverity = FigmaticSeverity.Info, data?: unknown): void {
     Logger.log(message, severity, Date.now(), data);
   }
